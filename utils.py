@@ -1,15 +1,21 @@
 import json
 
 def loadClubs():
-    with open('clubs.json') as c:
-         listOfClubs = json.load(c)['clubs']
-         return listOfClubs
+    try:
+        with open('clubs.json') as c:
+            listOfClubs = json.load(c)['clubs']
+            return listOfClubs
+    except (OSError, json.JSONDecodeError, KeyError):
+        return None
 
 
 def loadCompetitions():
-    with open('competitions.json') as comps:
-         listOfCompetitions = json.load(comps)['competitions']
-         return listOfCompetitions
+    try:
+        with open('competitions.json') as comps:
+            listOfCompetitions = json.load(comps)['competitions']
+            return listOfCompetitions
+    except (OSError, json.JSONDecodeError, KeyError):
+        return None
 
 
 def getClubByEmail(email, clubs):
@@ -26,3 +32,17 @@ def lowercaseEmail(email):
 def stripWhitespace(email):
     """Supprime les espaces avant et après l'email pour une comparaison précise."""
     return email.strip()
+
+def getCompetitionByName(name, competitions):
+    """Récupère une compétition par son nom dans la liste des compétitions."""
+    for competition in competitions:
+        if competition['name'] == name:
+            return competition
+    return None
+
+def getClubByName(name, clubs):
+    """Récupère un club par son nom dans la liste des clubs."""
+    for club in clubs:
+        if club['name'] == name:
+            return club
+    return None

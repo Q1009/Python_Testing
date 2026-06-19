@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request,redirect,flash,url_for,current_app
-from utils import loadClubs, loadCompetitions, getClubByEmail
+from utils import loadClubs, loadCompetitions, getClubByEmail, getCompetitionByName, getClubByName
 
 def create_app(config=None, clubs=None, competitions=None):
     app = Flask(__name__)
@@ -35,14 +35,23 @@ def create_app(config=None, clubs=None, competitions=None):
     def book(competition,club):
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
-        foundClub = [c for c in available_clubs if c['name'] == club][0]
-        foundCompetition = [c for c in available_competitions if c['name'] == competition][0]
-        if foundClub and foundCompetition:
-            return render_template('booking.html',club=foundClub,competition=foundCompetition)
-        else:
-            flash("Something went wrong-please try again")
-            return render_template('welcome.html', club=club, competitions=available_competitions)
 
+        if available_clubs is None or available_competitions is None:
+            flash("Error loading clubs or competitions data.")
+            return redirect(url_for('index'))
+        
+        found_competition = getCompetitionByName(competition, available_competitions)
+        found_club = getClubByName(club, available_clubs)
+
+        if found_club is None:
+            flash("Invalid booking URL. Please check the club name.")
+            return redirect(url_for('index'))
+
+        if found_competition is None:
+            flash("Invalid booking URL. Please check the competition name.")
+            return render_template('welcome.html', club=found_club, competitions=available_competitions)
+
+        return render_template('booking.html', club=found_club, competition=found_competition)
 
     @app.route('/purchasePlaces',methods=['POST'])
     def purchasePlaces():
