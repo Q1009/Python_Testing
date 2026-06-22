@@ -46,3 +46,30 @@ def getClubByName(name, clubs):
         if club['name'] == name:
             return club
     return None
+
+def getClubPoints(club):
+    """Récupère le nombre de points d'un club."""
+    if not isinstance(club, dict):
+        return None
+    try:
+        return int(club.get('points', None))
+    except (TypeError, ValueError):
+        return None
+
+def getCompetitionPlaces(competition):
+    """Récupère le nombre de places disponibles pour une compétition."""
+    if not isinstance(competition, dict):
+        return None
+    try:
+        return int(competition.get('numberOfPlaces', None))
+    except (TypeError, ValueError):
+        return None
+
+def validateBooking(club_points, competition_places, placesRequested):
+    """Valide si un club peut réserver des places pour une compétition."""
+    errors = []
+
+    if placesRequested > club_points:
+        errors.append("Not enough points available in your club to book the requested number of places.")
+
+    return errors

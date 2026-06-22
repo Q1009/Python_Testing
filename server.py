@@ -1,5 +1,14 @@
 from flask import Flask,render_template,request,redirect,flash,url_for,current_app
-from utils import loadClubs, loadCompetitions, getClubByEmail, getCompetitionByName, getClubByName
+from utils import (
+    loadClubs,
+    loadCompetitions,
+    getClubByEmail,
+    getCompetitionByName,
+    getClubByName,
+    getClubPoints,
+    getCompetitionPlaces,
+    validateBooking,
+)
 
 def create_app(config=None, clubs=None, competitions=None):
     app = Flask(__name__)
@@ -57,12 +66,34 @@ def create_app(config=None, clubs=None, competitions=None):
     def purchasePlaces():
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
-        competition = [c for c in available_competitions if c['name'] == request.form['competition']][0]
-        club = [c for c in available_clubs if c['name'] == request.form['club']][0]
+
+        if available_clubs is None or available_competitions is None:
+            flash("Error loading clubs or competitions data.")
+            return redirect(url_for('index'))
+
+        competition = getCompetitionByName(request.form['competition'], available_competitions)
+        club = getClubByName(request.form['club'], available_clubs)
         placesRequired = int(request.form['places'])
-        competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+
+        if competition is None or club is None:
+            flash("Invalid booking request. Please check the club and competition names.")
+            return redirect(url_for('index'))
+
+        validation_errors = validateBooking(
+            getClubPoints(club),
+            getCompetitionPlaces(competition),
+            placesRequired,
+        )
+
+        if validation_errors:
+            for error in validation_errors:
+                flash(error)
+            return render_template('booking.html', club=club, competition=competition)
+
+        competition['numberOfPlaces'] = str(getCompetitionPlaces(competition) - placesRequired)
         flash('Great-booking complete!')
         return render_template('welcome.html', club=club, competitions=available_competitions)
+    
 
 
     # TODO: Add route for points display
