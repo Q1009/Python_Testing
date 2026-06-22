@@ -1,4 +1,8 @@
 import json
+from datetime import datetime
+
+
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 def loadClubs():
     try:
@@ -64,6 +68,23 @@ def getCompetitionPlaces(competition):
         return int(competition.get('numberOfPlaces', None))
     except (TypeError, ValueError):
         return None
+
+
+def isCompetitionBookable(competition, now=None):
+    """Retourne True si la compétition est dans le futur (ou présent) avec au moins 1 place."""
+    if now is None:
+        now = datetime.now()
+
+    competition_places = getCompetitionPlaces(competition)
+    if competition_places is None or competition_places <= 0:
+        return False
+
+    try:
+        competition_date = datetime.strptime(competition['date'], DATE_FORMAT)
+    except (KeyError, TypeError, ValueError):
+        return False
+
+    return competition_date >= now
 
 def validateBooking(club_points, competition_places, placesRequested):
     """Valide si un club peut réserver des places pour une compétition."""
