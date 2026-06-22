@@ -17,11 +17,12 @@
     {% endwith %}
     <h2>{{competition['name']}}</h2>
     Places available: {{competition['numberOfPlaces']}}
+    {% set max_places = [12, club['points']|int, competition['numberOfPlaces']|int] | min %}
     <form action="/purchasePlaces" method="post">
         <input type="hidden" name="club" value="{{club['name']}}">
         <input type="hidden" name="competition" value="{{competition['name']}}">
-        <label for="places">How many places?</label><input type="number" name="places" id=""/>
-        <button type="submit">Book</button>
+        <label for="places">How many places?</label><input type="number" name="places" id="places" min="1" max="{{ max_places }}" step="1" required/>
+        <button type="submit" {% if max_places < 1 %}disabled{% endif %}>Book</button>
     </form>
 </body>
 </html>

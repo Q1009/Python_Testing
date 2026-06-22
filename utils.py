@@ -72,4 +72,7 @@ def validateBooking(club_points, competition_places, placesRequested):
     if placesRequested > club_points:
         errors.append("Not enough points available in your club to book the requested number of places.")
 
+    if placesRequested > 12:
+        errors.append("You cannot book more than 12 places per competition.")
+
     return errors
