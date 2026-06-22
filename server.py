@@ -91,11 +91,9 @@ def create_app(config=None, clubs=None, competitions=None):
             return render_template('booking.html', club=club, competition=competition)
 
         competition['numberOfPlaces'] = str(getCompetitionPlaces(competition) - placesRequired)
-        flash('Great-booking complete!')
+        flash(f'Booking complete: {placesRequired} places purchased.')
         return render_template('welcome.html', club=club, competitions=available_competitions)
     
-
-
     # TODO: Add route for points display
 
 
