@@ -86,7 +86,7 @@ def isCompetitionBookable(competition, now=None):
 
     return competition_date >= now
 
-def validateBooking(club_points, competition_places, placesRequested):
+def isBookingValid(club_points, competition_places, placesRequested):
     """Valide si un club peut réserver des places pour une compétition."""
     errors = []
 

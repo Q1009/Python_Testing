@@ -9,7 +9,7 @@ from utils import (
     getClubPoints,
     getCompetitionPlaces,
     isCompetitionBookable,
-    validateBooking,
+    isBookingValid,
 )
 
 def create_app(config=None, clubs=None, competitions=None):
@@ -110,8 +110,16 @@ def create_app(config=None, clubs=None, competitions=None):
         if competition is None or club is None:
             flash("Invalid booking request. Please check the club and competition names.")
             return redirect(url_for('index'))
+        
+        if not isCompetitionBookable(competition):
+            flash("This competition is no longer open for booking.")
+            return render_template(
+                'welcome.html',
+                club=club,
+                competitions=buildCompetitionsView(available_competitions),
+            )
 
-        validation_errors = validateBooking(
+        validation_errors = isBookingValid(
             getClubPoints(club),
             getCompetitionPlaces(competition),
             placesRequired,
