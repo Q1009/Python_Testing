@@ -10,6 +10,8 @@ from utils import (
     getCompetitionPlaces,
     isCompetitionBookable,
     isBookingValid,
+    updateClubPoints,
+    updateCompetitionPlaces,
 )
 
 def create_app(config=None, clubs=None, competitions=None):
@@ -130,7 +132,9 @@ def create_app(config=None, clubs=None, competitions=None):
                 flash(error)
             return render_template('booking.html', club=club, competition=competition)
 
-        competition['numberOfPlaces'] = str(getCompetitionPlaces(competition) - placesRequired)
+        # Update club points and competition places
+        updateClubPoints(club, placesRequired)
+        updateCompetitionPlaces(competition, placesRequired)
         flash(f'Booking complete: {placesRequired} places purchased.')
         return render_template(
             'welcome.html',

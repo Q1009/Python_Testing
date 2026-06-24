@@ -97,3 +97,31 @@ def isBookingValid(club_points, competition_places, placesRequested):
         errors.append("You cannot book more than 12 places per competition.")
 
     return errors
+
+def updateClubPoints(club, pointsToDeduct):
+    """Met à jour les points d'un club après une réservation."""
+    if not isinstance(club, dict):
+        return False
+    try:
+        current_points = int(club.get('points', 0))
+        new_points = current_points - pointsToDeduct
+        if new_points < 0 or pointsToDeduct < 0:
+            return False
+        club['points'] = str(new_points)
+        return True
+    except (TypeError, ValueError):
+        return False
+    
+def updateCompetitionPlaces(competition, placesToDeduct):
+    """Met à jour le nombre de places disponibles pour une compétition après une réservation."""
+    if not isinstance(competition, dict):
+        return False
+    try:
+        current_places = int(competition.get('numberOfPlaces', 0))
+        new_places = current_places - placesToDeduct
+        if new_places < 0 or placesToDeduct < 0:
+            return False
+        competition['numberOfPlaces'] = str(new_places)
+        return True
+    except (TypeError, ValueError):
+        return False
