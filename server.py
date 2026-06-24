@@ -42,6 +42,16 @@ def create_app(config=None, clubs=None, competitions=None):
     def index():
         return render_template('index.html')
 
+    @app.route('/pointsBoard')
+    def pointsBoard():
+        available_clubs = current_app.config['CLUBS']
+
+        if available_clubs is None:
+            flash("Error loading clubs data.")
+            return redirect(url_for('index'))
+
+        return render_template('points_board.html', clubs=available_clubs)
+
     @app.route('/showSummary',methods=['POST'])
     def showSummary():
         available_clubs = current_app.config['CLUBS']
