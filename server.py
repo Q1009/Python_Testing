@@ -22,6 +22,10 @@ def create_app(config=None, clubs=None, competitions=None):
 
     app.config['COMPETITIONS'] = competitions if competitions is not None else loadCompetitions()
     app.config['CLUBS'] = clubs if clubs is not None else loadClubs()
+    app.config.setdefault('BOOKINGS_BY_CLUB_COMPETITION', {})
+
+    def getBookingKey(club_name, competition_name):
+        return f"{club_name}::{competition_name}"
 
     def buildCompetitionsView(competitions):
         now = datetime.now()
@@ -108,6 +112,8 @@ def create_app(config=None, clubs=None, competitions=None):
         competition = getCompetitionByName(request.form['competition'], available_competitions)
         club = getClubByName(request.form['club'], available_clubs)
         placesRequired = int(request.form['places'])
+        booking_key = getBookingKey(request.form['club'], request.form['competition'])
+        places_already_booked = current_app.config['BOOKINGS_BY_CLUB_COMPETITION'].get(booking_key, 0)
 
         if competition is None or club is None:
             flash("Invalid booking request. Please check the club and competition names.")
@@ -125,16 +131,23 @@ def create_app(config=None, clubs=None, competitions=None):
             getClubPoints(club),
             getCompetitionPlaces(competition),
             placesRequired,
+            placesAlreadyBooked=places_already_booked,
         )
 
         if validation_errors:
             for error in validation_errors:
                 flash(error)
-            return render_template('booking.html', club=club, competition=competition)
+            #return render_template('booking.html', club=club, competition=competition)
+            return render_template(
+                'welcome.html',
+                club=club,
+                competitions=buildCompetitionsView(available_competitions),
+            )
 
         # Update club points and competition places
         updateClubPoints(club, placesRequired)
         updateCompetitionPlaces(competition, placesRequired)
+        current_app.config['BOOKINGS_BY_CLUB_COMPETITION'][booking_key] = places_already_booked + placesRequired
         flash(f'Booking complete: {placesRequired} places purchased.')
         return render_template(
             'welcome.html',

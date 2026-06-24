@@ -86,14 +86,23 @@ def isCompetitionBookable(competition, now=None):
 
     return competition_date >= now
 
-def isBookingValid(club_points, competition_places, placesRequested):
+def isBookingValid(club_points, competition_places, placesRequested, placesAlreadyBooked=0):
     """Valide si un club peut réserver des places pour une compétition."""
     errors = []
+
+    if placesRequested <= 0:
+        if placesRequested == 0:
+            errors.append("You need to book at least one place.")
+        else:
+            errors.append("You cannot book a negative number of places.")
+
+    if placesRequested > competition_places:
+        errors.append("Not enough places available in this competition.")
 
     if placesRequested > club_points:
         errors.append("Not enough points available in your club to book the requested number of places.")
 
-    if placesRequested > 12:
+    if placesRequested > 12 or (placesAlreadyBooked + placesRequested) > 12:
         errors.append("You cannot book more than 12 places per competition.")
 
     return errors
