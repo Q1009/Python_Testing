@@ -6,7 +6,16 @@
 </head>
 <body>
     <h1>Public Points Board</h1>
-    <p>This page is read-only and does not require login.</p>
+    <nav>
+        <ul>
+            {% if session.get('club_name') %}
+            <li><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></li>
+            <li><a href="{{url_for('logout')}}">Logout</a></li>
+            {% else %}
+            <li><a href="{{ url_for('index') }}">Back to Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
     <table>
         <thead>
             <tr>
@@ -23,6 +32,5 @@
             {% endfor %}
         </tbody>
     </table>
-    <p><a href="{{ url_for('index') }}">Back to Home</a></p>
 </body>
 </html>

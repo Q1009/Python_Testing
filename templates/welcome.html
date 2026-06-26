@@ -5,8 +5,16 @@
     <title>Summary | GUDLFT Registration</title>
 </head>
 <body>
-        <h2>Welcome, {{club['name']}} </h2><a href="{{url_for('logout')}}">Logout</a>
-        <p><a href="{{ url_for('pointsBoard') }}">View Public Points Board</a></p>
+        <h2>Welcome, {{club['name']}} </h2>
+        {% if session.get('club_name') %}
+        <p>Logged in as {{ session.get('club_name') }}.</p>
+        {% endif %}
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('pointsBoard') }}">Points Board</a></li>
+                <li><a href="{{url_for('logout')}}">Logout</a></li>
+            </ul>
+        </nav>
 
     {% with messages = get_flashed_messages()%}
     {% if messages %}
