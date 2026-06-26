@@ -1,8 +1,52 @@
 import json
 from datetime import datetime
+from flask import current_app, flash, redirect, session, url_for
 
 
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
+def getBookingKey(club_name, competition_name):
+    return f"{club_name}::{competition_name}"
+
+
+def getLoggedClub():
+    email = session.get('club_email')
+    if not email:
+        return None
+    return getClubByEmail(email, current_app.config['CLUBS'])
+
+
+def requireLogin():
+    club = getLoggedClub()
+    if club is None:
+        flash("Please log in first.")
+        return None
+    return club
+
+
+def clearSessionKeepingFlashes():
+    flashed_messages = session.get('_flashes', [])
+    session.clear()
+    if flashed_messages:
+        session['_flashes'] = flashed_messages
+
+
+def logoutAndRedirect():
+    clearSessionKeepingFlashes()
+    return redirect(url_for('index'))
+
+
+def buildCompetitionsView(competitions):
+    now = datetime.now()
+    competitions_view = []
+
+    for competition in competitions:
+        competition_view = dict(competition)
+        competition_view['canBook'] = isCompetitionBookable(competition, now=now)
+        competitions_view.append(competition_view)
+
+    return competitions_view
 
 def loadClubs():
     try:

@@ -1,5 +1,4 @@
 from flask import Flask,render_template,request,redirect,flash,url_for,current_app,session
-from datetime import datetime
 from utils import (
     loadClubs,
     loadCompetitions,
@@ -12,6 +11,11 @@ from utils import (
     isBookingValid,
     updateClubPoints,
     updateCompetitionPlaces,
+    getBookingKey,
+    requireLogin,
+    logoutAndRedirect,
+    buildCompetitionsView,
+    clearSessionKeepingFlashes,
 )
 
 def create_app(config=None, clubs=None, competitions=None):
@@ -24,40 +28,9 @@ def create_app(config=None, clubs=None, competitions=None):
     app.config['CLUBS'] = clubs if clubs is not None else loadClubs()
     app.config.setdefault('BOOKINGS_BY_CLUB_COMPETITION', {})
 
-    def getBookingKey(club_name, competition_name):
-        return f"{club_name}::{competition_name}"
-
-    def getLoggedClub():
-        email = session.get('club_email')
-        if not email:
-            return None
-        return getClubByEmail(email, current_app.config['CLUBS'])
-
-    def requireLogin():
-        club = getLoggedClub()
-        if club is None:
-            flash("Please log in first.")
-            return None
-        return club
-
-    def logoutAndRedirect():
-        session.clear()
-        return redirect(url_for('index'))
-
-    def buildCompetitionsView(competitions):
-        now = datetime.now()
-        competitions_view = []
-
-        for competition in competitions:
-            competition_view = dict(competition)
-            competition_view['canBook'] = isCompetitionBookable(competition, now=now)
-            competitions_view.append(competition_view)
-
-        return competitions_view
-
     @app.route('/')
     def index():
-        session.clear()
+        clearSessionKeepingFlashes()
         return render_template('index.html')
 
     @app.route('/dashboard')
@@ -210,6 +183,7 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/logout')
     def logout():
+        flash("You have been logged out.")
         return logoutAndRedirect()
 
     return app
