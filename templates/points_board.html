@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5,32 +6,38 @@
     <title>Public Points Board | GUDLFT Registration</title>
 </head>
 <body>
-    <h1>Public Points Board</h1>
-    <nav>
-        <ul>
-            {% if session.get('club_name') %}
-            <li><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></li>
-            <li><a href="{{url_for('logout')}}">Logout</a></li>
-            {% else %}
-            <li><a href="{{ url_for('index') }}">Back to Login</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-    <table>
-        <thead>
-            <tr>
-                <th>Club</th>
-                <th>Available Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for club in clubs %}
-            <tr>
-                <td>{{ club['name'] }}</td>
-                <td>{{ club['points'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <header>
+        <h1>Public Points Board</h1>
+        <nav aria-label="Main navigation">
+            <ul>
+                {% if session.get('club_name') %}
+                <li><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                <li><a href="{{ url_for('index') }}">Back to Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <table>
+            <caption>Current club points</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Club</th>
+                    <th scope="col">Available Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for club in clubs %}
+                <tr>
+                    <td>{{ club['name'] }}</td>
+                    <td>{{ club['points'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
 </body>
 </html>

@@ -43,10 +43,12 @@ def buildCompetitionsView(competitions):
 
     for competition in competitions:
         competition_view = dict(competition)
-        competition_view['canBook'] = isCompetitionBookable(competition, now=now)
+        competition_view['canBook'] = isCompetitionBookable(
+            competition, now=now)
         competitions_view.append(competition_view)
 
     return competitions_view
+
 
 def loadClubs():
     try:
@@ -73,13 +75,16 @@ def getClubByEmail(email, clubs):
             return club
     return None
 
+
 def lowercaseEmail(email):
     """Convertit l'email en minuscules pour une comparaison insensible à la casse."""
     return email.lower()
 
+
 def stripWhitespace(email):
     """Supprime les espaces avant et après l'email pour une comparaison précise."""
     return email.strip()
+
 
 def getCompetitionByName(name, competitions):
     """Récupère une compétition par son nom dans la liste des compétitions."""
@@ -88,12 +93,14 @@ def getCompetitionByName(name, competitions):
             return competition
     return None
 
+
 def getClubByName(name, clubs):
     """Récupère un club par son nom dans la liste des clubs."""
     for club in clubs:
         if club['name'] == name:
             return club
     return None
+
 
 def getClubPoints(club):
     """Récupère le nombre de points d'un club."""
@@ -103,6 +110,7 @@ def getClubPoints(club):
         return int(club.get('points', None))
     except (TypeError, ValueError):
         return None
+
 
 def getCompetitionPlaces(competition):
     """Récupère le nombre de places disponibles pour une compétition."""
@@ -130,6 +138,7 @@ def isCompetitionBookable(competition, now=None):
 
     return competition_date >= now
 
+
 def isBookingValid(club_points, competition_places, placesRequested, placesAlreadyBooked=0):
     """Valide si un club peut réserver des places pour une compétition."""
     errors = []
@@ -144,12 +153,14 @@ def isBookingValid(club_points, competition_places, placesRequested, placesAlrea
         errors.append("Not enough places available in this competition.")
 
     if placesRequested > club_points:
-        errors.append("Not enough points available in your club to book the requested number of places.")
+        errors.append(
+            "Not enough points available in your club to book the requested number of places.")
 
     if placesRequested > 12 or (placesAlreadyBooked + placesRequested) > 12:
         errors.append("You cannot book more than 12 places per competition.")
 
     return errors
+
 
 def updateClubPoints(club, pointsToDeduct):
     """Met à jour les points d'un club après une réservation."""
@@ -164,7 +175,8 @@ def updateClubPoints(club, pointsToDeduct):
         return True
     except (TypeError, ValueError):
         return False
-    
+
+
 def updateCompetitionPlaces(competition, placesToDeduct):
     """Met à jour le nombre de places disponibles pour une compétition après une réservation."""
     if not isinstance(competition, dict):

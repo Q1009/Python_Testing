@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request,redirect,flash,url_for,current_app,session
+from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for
 from utils import (
     loadClubs,
     loadCompetitions,
@@ -18,6 +18,7 @@ from utils import (
     clearSessionKeepingFlashes,
 )
 
+
 def create_app(config=None, clubs=None, competitions=None):
     app = Flask(__name__)
     app.secret_key = 'something_special'
@@ -27,6 +28,13 @@ def create_app(config=None, clubs=None, competitions=None):
     app.config['COMPETITIONS'] = competitions if competitions is not None else loadCompetitions()
     app.config['CLUBS'] = clubs if clubs is not None else loadClubs()
     app.config.setdefault('BOOKINGS_BY_CLUB_COMPETITION', {})
+
+    def render_welcome(club, competitions):
+        return render_template(
+            'welcome.html',
+            club=club,
+            competitions=buildCompetitionsView(competitions),
+        )
 
     @app.route('/')
     def index():
@@ -39,11 +47,7 @@ def create_app(config=None, clubs=None, competitions=None):
         if club is None:
             return logoutAndRedirect()
         available_competitions = current_app.config['COMPETITIONS']
-        return render_template(
-            'welcome.html',
-            club=club,
-            competitions=buildCompetitionsView(available_competitions),
-        )
+        return render_welcome(club, available_competitions)
 
     @app.route('/pointsBoard')
     def pointsBoard():
@@ -55,7 +59,7 @@ def create_app(config=None, clubs=None, competitions=None):
 
         return render_template('points_board.html', clubs=available_clubs)
 
-    @app.route('/showSummary',methods=['POST'])
+    @app.route('/showSummary', methods=['POST'])
     def showSummary():
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
@@ -68,18 +72,13 @@ def create_app(config=None, clubs=None, competitions=None):
         if club:
             session['club_email'] = club['email']
             session['club_name'] = club['name']
-            return render_template(
-                'welcome.html',
-                club=club,
-                competitions=buildCompetitionsView(available_competitions),
-            )
+            return render_welcome(club, available_competitions)
 
         flash("Unfortunately, the email you entered was not found.")
         return logoutAndRedirect()
 
-
     @app.route('/book/<competition>/<club>')
-    def book(competition,club):
+    def book(competition, club):
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
         logged_club = requireLogin()
@@ -90,39 +89,26 @@ def create_app(config=None, clubs=None, competitions=None):
         if available_clubs is None or available_competitions is None:
             flash("Error loading clubs or competitions data.")
             return logoutAndRedirect()
-        
-        found_competition = getCompetitionByName(competition, available_competitions)
+
+        found_competition = getCompetitionByName(
+            competition, available_competitions)
         found_club = getClubByName(club, available_clubs)
 
         if found_club is None or found_club['name'] != logged_club['name']:
             flash("Invalid booking URL. Please check the club name.")
-            return render_template(
-                'welcome.html',
-                club=logged_club,
-                competitions=buildCompetitionsView(available_competitions),
-            )
+            return render_welcome(logged_club, available_competitions)
 
         if found_competition is None:
             flash("Invalid booking URL. Please check the competition name.")
-            return render_template(
-                'welcome.html',
-                club=found_club,
-                competitions=buildCompetitionsView(available_competitions),
-            )
+            return render_welcome(found_club, available_competitions)
 
         if not isCompetitionBookable(found_competition):
             flash("This competition is no longer open for booking.")
-            return render_template(
-                'welcome.html',
-                club=found_club,
-                competitions=buildCompetitionsView(available_competitions),
-            )
-        
-
+            return render_welcome(found_club, available_competitions)
 
         return render_template('booking.html', club=found_club, competition=found_competition)
 
-    @app.route('/purchasePlaces',methods=['POST'])
+    @app.route('/purchasePlaces', methods=['POST'])
     def purchasePlaces():
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
@@ -135,23 +121,21 @@ def create_app(config=None, clubs=None, competitions=None):
             flash("Error loading clubs or competitions data.")
             return logoutAndRedirect()
 
-        competition = getCompetitionByName(request.form['competition'], available_competitions)
+        competition = getCompetitionByName(
+            request.form['competition'], available_competitions)
         club = logged_club
         placesRequired = int(request.form['places'])
         booking_key = getBookingKey(club['name'], request.form['competition'])
-        places_already_booked = current_app.config['BOOKINGS_BY_CLUB_COMPETITION'].get(booking_key, 0)
+        places_already_booked = current_app.config['BOOKINGS_BY_CLUB_COMPETITION'].get(
+            booking_key, 0)
 
         if competition is None or club is None:
             flash("Invalid booking request. Please check the club and competition names.")
             return logoutAndRedirect()
-        
+
         if not isCompetitionBookable(competition):
             flash("This competition is no longer open for booking.")
-            return render_template(
-                'welcome.html',
-                club=club,
-                competitions=buildCompetitionsView(available_competitions),
-            )
+            return render_welcome(club, available_competitions)
 
         validation_errors = isBookingValid(
             getClubPoints(club),
@@ -163,23 +147,13 @@ def create_app(config=None, clubs=None, competitions=None):
         if validation_errors:
             for error in validation_errors:
                 flash(error)
-            #return render_template('booking.html', club=club, competition=competition)
-            return render_template(
-                'welcome.html',
-                club=club,
-                competitions=buildCompetitionsView(available_competitions),
-            )
+            return render_welcome(club, available_competitions)
 
-        # Update club points and competition places
         updateClubPoints(club, placesRequired)
         updateCompetitionPlaces(competition, placesRequired)
         current_app.config['BOOKINGS_BY_CLUB_COMPETITION'][booking_key] = places_already_booked + placesRequired
         flash(f'Booking complete: {placesRequired} places purchased.')
-        return render_template(
-            'welcome.html',
-            club=club,
-            competitions=buildCompetitionsView(available_competitions),
-        )
+        return render_welcome(club, available_competitions)
 
     @app.route('/logout')
     def logout():

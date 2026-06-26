@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5,29 +6,38 @@
     <title>GUDLFT Registration</title>
 </head>
 <body>
-    <h1>Welcome to the GUDLFT Registration Portal!</h1>
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('pointsBoard') }}">Points Board</a></li>
-        </ul>
-    </nav>
-    {% if session.get('club_name') %}
-    <p>Logged in as {{ session.get('club_name') }}.</p>
-    {% endif %}
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
+    <header>
+        <h1>Welcome to the GUDLFT Registration Portal!</h1>
+        <nav aria-label="Main navigation">
             <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
+                <li><a href="{{ url_for('pointsBoard') }}">Points Board</a></li>
             </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% if session.get('club_name') %}
+        <p>Logged in as {{ session.get('club_name') }}.</p>
         {% endif %}
-    {% endwith %}
-    Please enter your secretary email to continue:
-    <form action="showSummary" method="post">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id=""/>
-        <button type="submit">Enter</button>
-    </form>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <section aria-live="polite">
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+        {% endwith %}
+
+        <p>Please enter your secretary email to continue:</p>
+        <form action="{{ url_for('showSummary') }}" method="post">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required>
+            <button type="submit">Enter</button>
+        </form>
+    </main>
 </body>
 </html>

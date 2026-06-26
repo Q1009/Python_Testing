@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5,32 +6,42 @@
     <title>Booking for {{competition['name']}} || GUDLFT</title>
 </head>
 <body>
-    <h1> GUDLFT Booking</h1>
-    {% if session.get('club_name') %}
-    <p>Logged in as {{ session.get('club_name') }}.</p>
-    {% endif %}
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('pointsBoard') }}">Points Board</a></li>
-            <li><a href="{{url_for('logout')}}">Logout</a></li>
-        </ul>
-    </nav>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
+    <header>
+        <h1>GUDLFT Booking</h1>
+        {% if session.get('club_name') %}
+        <p>Logged in as {{ session.get('club_name') }}.</p>
         {% endif %}
-    {% endwith %}
-    <h2>{{competition['name']}}</h2>
-    Places available: {{competition['numberOfPlaces']}}
-    {% set max_places = [12, club['points']|int, competition['numberOfPlaces']|int] | min %}
-    <form action="/purchasePlaces" method="post">
-        <input type="hidden" name="competition" value="{{competition['name']}}">
-        <label for="places">How many places?</label><input type="number" name="places" id="places" min="1" max="{{ max_places }}" step="1" required/>
-        <button type="submit" {% if max_places < 1 %}disabled{% endif %}>Book</button>
-    </form>
+        <nav aria-label="Main navigation">
+            <ul>
+                <li><a href="{{ url_for('pointsBoard') }}">Points Board</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <section aria-live="polite">
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+        {% endwith %}
+
+        <h2>{{ competition['name'] }}</h2>
+        <p>Places available: {{ competition['numberOfPlaces'] }}</p>
+
+        {% set max_places = [12, club['points']|int, competition['numberOfPlaces']|int] | min %}
+        <form action="{{ url_for('purchasePlaces') }}" method="post">
+            <input type="hidden" name="competition" value="{{ competition['name'] }}">
+            <label for="places">How many places?</label>
+            <input type="number" name="places" id="places" min="1" max="{{ max_places }}" step="1" required>
+            <button type="submit" {% if max_places < 1 %}disabled{% endif %}>Book</button>
+        </form>
+    </main>
 </body>
 </html>
