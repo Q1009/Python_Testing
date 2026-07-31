@@ -1,4 +1,4 @@
-# GudLift Registration
+# GUDLFT Registration
 
 ## 📌 About
 
@@ -114,6 +114,12 @@ pip install pytest
 # Run all tests
 pytest
 ```
+## 📊 Testing Results
+
+Here's an example of Locust load testing results:
+
+![Locust Performance Test Results](./tests/test_results_screenshot.png)
+
 
 ### Run Specific Test Suites
 

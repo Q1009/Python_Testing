@@ -18,8 +18,18 @@ from utils import (
     clear_session_keeping_flashes,
 )
 
-
 def create_app(config=None, clubs=None, competitions=None):
+    """
+    Create and configure the Flask application.
+
+    Args:
+        config (dict, optional): Configuration dictionary to update the app config.
+        clubs (list, optional): List of clubs to use. If None, loads from clubs.json.
+        competitions (list, optional): List of competitions to use. If None, loads from competitions.json.
+
+    Returns:
+        Flask: Configured Flask application instance.
+    """
     app = Flask(__name__)
     app.secret_key = 'something_special'
     if config:
@@ -30,6 +40,16 @@ def create_app(config=None, clubs=None, competitions=None):
     app.config.setdefault('BOOKINGS_BY_CLUB_COMPETITION', {})
 
     def render_welcome(club, competitions):
+        """
+        Render the welcome/dashboard template for a logged-in club.
+
+        Args:
+            club (dict): Club dictionary containing name, email, and points.
+            competitions (list): List of competition dictionaries.
+
+        Returns:
+            Response: Rendered template response for the welcome page.
+        """
         return render_template(
             'welcome.html',
             club=club,
@@ -38,11 +58,28 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/')
     def index():
+        """
+        Render the login/index page.
+
+        Clears any existing session data (except flashed messages) before rendering.
+
+        Returns:
+            Response: Rendered template for the login page.
+        """
         clear_session_keeping_flashes()
         return render_template('index.html')
 
     @app.route('/dashboard')
     def dashboard():
+        """
+        Render the dashboard for a logged-in club.
+
+        Requires an active login session. If not logged in, redirects to the login page.
+
+        Returns:
+            Response: Rendered welcome template if logged in,
+                     or redirect response to login page if not.
+        """
         club = require_login()
         if club is None:
             return logout_and_redirect()
@@ -51,6 +88,13 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/points_board')
     def points_board():
+        """
+        Render the public points board showing all clubs and their points.
+
+        Returns:
+            Response: Rendered template for the points board if clubs are loaded,
+                     or redirect to index with error flash message if clubs data fails to load.
+        """
         available_clubs = current_app.config['CLUBS']
 
         if available_clubs is None:
@@ -61,6 +105,16 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/show_summary', methods=['POST'])
     def show_summary():
+        """
+        Handle login form submission.
+
+        Validates the submitted email against registered clubs. On success, creates a session
+        and redirects to the dashboard. On failure, flashes an error and redirects to login.
+
+        Returns:
+            Response: Redirect to dashboard if login succeeds,
+                     or redirect to login with error message if login fails.
+        """
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
 
@@ -79,6 +133,17 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/book/<competition>/<club>')
     def book(competition, club):
+        """
+        Render the booking page for a specific competition and club.
+
+        Args:
+            competition (str): Name of the competition to book.
+            club (str): Name of the club making the booking.
+
+        Returns:
+            Response: Rendered booking template if all validations pass,
+                     or redirect to welcome/dashboard with error message if validation fails.
+        """
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
         logged_club = require_login()
@@ -110,6 +175,15 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/purchase_places', methods=['POST'])
     def purchase_places():
+        """
+        Process a booking request to purchase places in a competition.
+
+        Validates the request, updates club points and competition places on success,
+        and flashes appropriate messages for any errors.
+
+        Returns:
+            Response: Redirect to welcome/dashboard with success or error messages.
+        """
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
         logged_club = require_login()
@@ -157,10 +231,17 @@ def create_app(config=None, clubs=None, competitions=None):
 
     @app.route('/logout')
     def logout():
+        """
+        Log out the current user.
+
+        Clears the session and flashes a logout message.
+
+        Returns:
+            Response: Redirect to the login page with a logout confirmation message.
+        """
         flash("You have been logged out.")
         return logout_and_redirect()
 
     return app
-
 
 app = create_app()
