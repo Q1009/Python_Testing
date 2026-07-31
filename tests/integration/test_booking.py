@@ -10,7 +10,7 @@ class TestBooking:
     invalid_competition_name = "Invalid Competition"
 
     def test_booking_with_valid_club_name_and_valid_competition_name(self, client, login_as_valid_user):
-        """Cas 1 — demande de réservation avec un nom de club valide et un nom de compétition valide : accès à la page de réservation."""
+        """Case 1 — booking request with a valid club name and a valid competition name: access to the booking page."""
         login_as_valid_user()
         valid_club_name = quote(self.valid_club_name)
         valid_competition_name = quote(self.valid_competition_name)
@@ -22,7 +22,7 @@ class TestBooking:
         assert b"Booking for" in response.data
 
     def test_booking_with_invalid_club_name_and_valid_competition_name(self, client, login_as_valid_user):
-        """Cas 2 — demande de réservation avec un nom de club invalide et un nom de compétition valide : redirection vers la page d'accueil avec un message d'erreur."""
+        """Case 2 — booking request with an invalid club name and a valid competition name: redirect to the homepage with an error message."""
         login_as_valid_user()
         invalid_club_name = quote("Invalid Club")
         valid_competition_name = quote(self.valid_competition_name)
@@ -35,7 +35,7 @@ class TestBooking:
         assert b"Invalid booking URL. Please check the club name." in response.data
 
     def test_booking_with_valid_club_name_and_invalid_competition_name(self, client, login_as_valid_user):
-        """Cas 3 — demande de réservation avec un nom de club valide et un nom de compétition invalide : redirection vers la page d'accueil avec un message d'erreur."""
+        """Case 3 — booking request with a valid club name and an invalid competition name: redirect to the homepage with an error message."""
         login_as_valid_user()
         invalid_competition_name = quote(self.invalid_competition_name)
         valid_club_name = quote(self.valid_club_name)
@@ -48,7 +48,7 @@ class TestBooking:
         assert b"Invalid booking URL. Please check the competition name." in response.data
 
     def test_booking_with_invalid_club_name_and_invalid_competition_name(self, client, login_as_valid_user):
-        """Cas 4 — demande de réservation avec un nom de club invalide et un nom de compétition invalide : redirection vers la page d'accueil avec un message d'erreur."""
+        """Case 4 — booking request with an invalid club name and an invalid competition name: redirect to the homepage with an error message."""
         login_as_valid_user()
         invalid_club_name = quote(self.invalid_club_name)
         invalid_competition_name = quote(self.invalid_competition_name)
@@ -61,7 +61,7 @@ class TestBooking:
         assert b"Invalid booking URL. Please check the club name." in response.data
 
     def test_booking_with_empty_club_name_and_valid_competition_name(self, client):
-        """Cas 5 — demande de réservation avec un nom de club vide et un nom de compétition valide : redirection vers la page d'accueil avec un message d'erreur."""
+        """Case 5 — booking request with an empty club name and a valid competition name: redirect to the homepage with an error message."""
         invalid_club_name = quote("")
         valid_competition_name = quote(self.valid_competition_name)
         response = client.get(
@@ -71,7 +71,7 @@ class TestBooking:
         assert response.status_code == 404
 
     def test_booking_with_valid_club_name_and_empty_competition_name(self, client):
-        """Cas 6 — demande de réservation avec un nom de club valide et un nom de compétition vide : redirection vers la page d'accueil avec un message d'erreur."""
+        """Case 6 — booking request with a valid club name and an empty competition name: redirect to the homepage with an error message."""
         valid_club_name = quote(self.valid_club_name)
         invalid_competition_name = quote("")
         response = client.get(
@@ -81,7 +81,7 @@ class TestBooking:
         assert response.status_code == 404
 
     def test_booking_with_empty_club_name_and_empty_competition_name(self, client):
-        """Cas 7 — demande de réservation avec un nom de club vide et un nom de compétition vide : redirection vers la page d'accueil avec un message d'erreur."""
+        """Case 7 — booking request with an empty club name and an empty competition name: redirect to the homepage with an error message."""
         invalid_club_name = quote("")
         invalid_competition_name = quote("")
         response = client.get(
@@ -91,7 +91,7 @@ class TestBooking:
         assert response.status_code == 404
 
     def test_booking_with_past_competition_redirects_to_welcome(self, app, client, login_as_valid_user):
-        """Cas 8 — compétition passée : accès direct à /book refusé et retour sur welcome."""
+        """Case 8 — past competition: direct access to /book denied and return to welcome."""
         login_as_valid_user()
         app.config['COMPETITIONS'][0]['date'] = (
             datetime.now() - timedelta(days=1)
@@ -110,7 +110,7 @@ class TestBooking:
         assert b"This competition is no longer open for booking." in response.data
 
     def test_booking_requires_login(self, client):
-        """Cas 9 — utilisateur non connecté : redirection vers index avec message."""
+        """Case 9 — user not logged in: redirect to index with message."""
         valid_club_name = quote(self.valid_club_name)
         valid_competition_name = quote(self.valid_competition_name)
 

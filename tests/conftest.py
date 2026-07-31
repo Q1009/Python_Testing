@@ -37,7 +37,7 @@ def client(app):
 def login_as_valid_user(client):
     def _login(email='john@simplylift.co'):
         return client.post(
-            '/showSummary',
+            '/show_summary',
             data={'email': email},
             follow_redirects=True,
         )
@@ -57,8 +57,8 @@ def mock_clubs():
 @pytest.fixture
 def mock_competitions():
     return [
-        {"name": "Spring Festival", "date": "2025-03-27 10:00:00", "numberOfPlaces": "25"},
-        {"name": "Fall Classic", "date": "2026-10-22 13:30:00", "numberOfPlaces": "13"},
+        {"name": "Spring Festival", "date": "2025-03-27 10:00:00", "number_of_places": "25"},
+        {"name": "Fall Classic", "date": "2026-10-22 13:30:00", "number_of_places": "13"},
     ]
 
 

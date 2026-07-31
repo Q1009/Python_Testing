@@ -1,10 +1,10 @@
 
 class TestPurchase:
 	def test_purchase_places_with_valid_request_shows_confirmation_and_deducts_points(self, client, login_as_valid_user):
-		"""Cas 1 — achat valide : message de confirmation affiché et déduction des points/place appliquée."""
+		"""Case 1 — valid purchase: confirmation message displayed and points/places deducted."""
 		login_as_valid_user()
 		response = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '5',
@@ -19,17 +19,17 @@ class TestPurchase:
 
 		competition = next(c for c in client.application.config['COMPETITIONS'] if c['name'] == 'Fall Classic')
 		club = next(c for c in client.application.config['CLUBS'] if c['name'] == 'Simply Lift')
-		assert competition['numberOfPlaces'] == '8'
+		assert competition['number_of_places'] == '8'
 		assert club['points'] == '8'
 
 	def test_purchase_places_when_competition_is_complete(self, client, login_as_valid_user):
-		"""Cas 2 — compétition complète : message indiquant que la compétition n'est plus ouverte."""
+		"""Case 2 — competition complete: message indicating that the competition is no longer open."""
 		login_as_valid_user()
 		competition = next(c for c in client.application.config['COMPETITIONS'] if c['name'] == 'Fall Classic')
-		competition['numberOfPlaces'] = '0'
+		competition['number_of_places'] = '0'
 
 		response = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '1',
@@ -41,13 +41,13 @@ class TestPurchase:
 		assert b"This competition is no longer open for booking." in response.data
 
 	def test_purchase_places_more_than_available_places(self, client, login_as_valid_user):
-		"""Cas 3 — demande supérieure aux places disponibles : refus avec message explicite."""
+		"""Case 3 — request exceeds available places: denial with explicit message."""
 		login_as_valid_user()
 		competition = next(c for c in client.application.config['COMPETITIONS'] if c['name'] == 'Fall Classic')
-		competition['numberOfPlaces'] = '3'
+		competition['number_of_places'] = '3'
 
 		response = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '5',
@@ -57,14 +57,14 @@ class TestPurchase:
 
 		assert response.status_code == 200
 		assert b"Not enough places available in this competition." in response.data
-		assert competition['numberOfPlaces'] == '3'
+		assert competition['number_of_places'] == '3'
 
 	def test_purchase_places_more_than_twelve(self, client, login_as_valid_user):
-		"""Cas 4 — demande supérieure à 12 places : refus pour garantir l'équité."""
-		# Si c'est fait en plusieurs fois, le club peut réserver plus de 12 places, mais pas en une seule fois.
+		"""Case 4 — request exceeds 12 places: denial to ensure fairness."""
+		# If done in multiple times, the club can book more than 12 places, but not in a single request.
 		login_as_valid_user()
 		response = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '13',
@@ -76,12 +76,12 @@ class TestPurchase:
 		assert b"You cannot book more than 12 places per competition." in response.data
 
 	def test_purchase_places_more_than_club_points(self, client, login_as_valid_user):
-		"""Cas 5 — demande supérieure aux points du club : refus avec message explicite."""
+		"""Case 5 — request exceeds club points: denial with explicit message."""
 		login_as_valid_user()
 		club = next(c for c in client.application.config['CLUBS'] if c['name'] == 'Simply Lift')
 		club['points'] = '4'
 		response = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '5',
@@ -94,11 +94,11 @@ class TestPurchase:
 		assert club['points'] == '4'
 
 	def test_purchase_multiple_times_accumulates_points_and_places(self, client, login_as_valid_user):
-		"""Cas 6 — achat multiple : les points et places sont correctement mis à jour après plusieurs achats."""
+		"""Case 6 — multiple purchases: points and places are correctly updated after several purchases."""
 		login_as_valid_user()
 		# Premier achat
 		response1 = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '3',
@@ -112,7 +112,7 @@ class TestPurchase:
 
 		# Deuxième achat
 		response2 = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '4',
@@ -125,11 +125,11 @@ class TestPurchase:
 		assert b"Number of Places: 6" in response2.data
 
 	def test_purchase_12_places_in_multiple_requests(self, client, login_as_valid_user):
-		"""Cas 7 — achat de 12 places en plusieurs fois : le club ne peut pas réserver plus de 12 places au total."""
+		"""Case 7 — booking 12 places in multiple requests: the club cannot book more than 12 places in total."""
 		login_as_valid_user()
 		# Premier achat de 6 places
 		response1 = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '6',
@@ -143,7 +143,7 @@ class TestPurchase:
 
 		# Deuxième achat de 6 places
 		response2 = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '6',
@@ -157,7 +157,7 @@ class TestPurchase:
 
 		# Troisième tentative d'achat de 1 place (total de 13 places)
 		response3 = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '1',
@@ -170,9 +170,9 @@ class TestPurchase:
 		assert b"Number of Places: 1" in response3.data
 
 	def test_purchase_requires_login(self, client):
-		"""Cas 8 — utilisateur non connecté : achat refusé et redirection vers index."""
+		"""Case 8 — user not logged in: purchase denied and redirect to index."""
 		response = client.post(
-			'/purchasePlaces',
+			'/purchase_places',
 			data={
 				'competition': 'Fall Classic',
 				'places': '1',

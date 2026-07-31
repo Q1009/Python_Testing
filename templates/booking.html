@@ -13,7 +13,7 @@
         {% endif %}
         <nav aria-label="Main navigation">
             <ul>
-                <li><a href="{{ url_for('pointsBoard') }}">Points Board</a></li>
+                <li><a href="{{ url_for('points_board') }}">Points Board</a></li>
                 <li><a href="{{ url_for('logout') }}">Logout</a></li>
             </ul>
         </nav>
@@ -33,10 +33,10 @@
         {% endwith %}
 
         <h2>{{ competition['name'] }}</h2>
-        <p>Places available: {{ competition['numberOfPlaces'] }}</p>
+        <p>Places available: {{ competition['number_of_places'] }}</p>
 
-        {% set max_places = [12, club['points']|int, competition['numberOfPlaces']|int] | min %}
-        <form action="{{ url_for('purchasePlaces') }}" method="post">
+        {% set max_places = [12, club['points']|int, competition['number_of_places']|int] | min %}
+        <form action="{{ url_for('purchase_places') }}" method="post">
             <input type="hidden" name="competition" value="{{ competition['name'] }}">
             <label for="places">How many places?</label>
             <input type="number" name="places" id="places" min="1" max="{{ max_places }}" step="1" required>

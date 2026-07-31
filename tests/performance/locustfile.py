@@ -4,7 +4,7 @@ from locust import HttpUser, between, task
 
 
 class ProjectPerformanceTest(HttpUser):
-    """Load profile that emulates a secretary user journey in GUDLFT."""
+    """Load profile that emulates a secretary user journey in GudLift."""
 
     wait_time = between(1, 3)
 
@@ -44,7 +44,7 @@ class ProjectPerformanceTest(HttpUser):
 
     @task(4)
     def points_board(self):
-        with self.client.get("/pointsBoard", name="GET /pointsBoard", catch_response=True) as response:
+        with self.client.get("/points_board", name="GET /points_board", catch_response=True) as response:
             if response.status_code != 200 or "Points Board" not in response.text:
                 response.failure("Points board indisponible")
 
@@ -53,9 +53,9 @@ class ProjectPerformanceTest(HttpUser):
         email = self._next_email()
 
         with self.client.post(
-            "/showSummary",
+            "/show_summary",
             data={"email": email},
-            name="POST /showSummary (login)",
+            name="POST /show_summary (login)",
             catch_response=True,
         ) as login_response:
             if login_response.status_code != 200:
@@ -83,9 +83,9 @@ class ProjectPerformanceTest(HttpUser):
                 return
 
         with self.client.post(
-            "/purchasePlaces",
+            "/purchase_places",
             data={"competition": competition_name, "places": str(places)},
-            name="POST /purchasePlaces",
+            name="POST /purchase_places",
             catch_response=True,
         ) as purchase_response:
             if purchase_response.status_code != 200:

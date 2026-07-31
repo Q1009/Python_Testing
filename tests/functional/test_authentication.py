@@ -27,11 +27,11 @@ class TestAuthentication(LiveServerTestCase):
         self.assertIn("Welcome, Simply Lift", self.driver.page_source)
 
     def test_login_with_invalid_credentials(self):
-        # 1) L'utilisateur tente de se connecter avec un identifiant non valide.
+        # 1) The user attempts to log in with an invalid identifier.
         email_input = self.driver.find_element(By.ID, "email")
         email_input.send_keys("unknown-user@gudlft.co")
         self.driver.find_element(By.ID, "login").click()
 
-        # 2) Il est redirige vers la page d'accueil avec un message d'erreur explicite.
+        # 2) They are redirected to the homepage with an explicit error message.
         self.assertIn("Welcome to the GUDLFT Registration Portal!", self.driver.page_source)
         self.assertIn("Unfortunately, the email you entered was not found.", self.driver.page_source)
