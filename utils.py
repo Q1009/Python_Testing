@@ -1,12 +1,13 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 from flask import current_app, flash, redirect, session, url_for, Response
 
 DATE_FORMAT: str = '%Y-%m-%d %H:%M:%S'
 
 Club = Dict[str, Union[str, int]]
 Competition = Dict[str, Union[str, int]]
+
 
 def get_booking_key(club_name: str, competition_name: str) -> str:
     """
@@ -20,6 +21,7 @@ def get_booking_key(club_name: str, competition_name: str) -> str:
         Unique key string in the format 'club_name::competition_name'.
     """
     return f"{club_name}::{competition_name}"
+
 
 def get_logged_club() -> Optional[Club]:
     """
@@ -35,6 +37,7 @@ def get_logged_club() -> Optional[Club]:
         return None
     return get_club_by_email(email, current_app.config['CLUBS'])
 
+
 def require_login() -> Optional[Club]:
     """
     Check if a user is logged in and return the club if so.
@@ -42,13 +45,15 @@ def require_login() -> Optional[Club]:
     If no user is logged in, flashes an error message and returns None.
 
     Returns:
-        Dictionary representing the logged-in club if session is valid, otherwise None.
+        Dictionary representing the logged-in club if session
+        is valid, otherwise None.
     """
     club = get_logged_club()
     if club is None:
         flash("Please log in first.")
         return None
     return club
+
 
 def clear_session_keeping_flashes() -> None:
     """
@@ -60,6 +65,7 @@ def clear_session_keeping_flashes() -> None:
     session.clear()
     if flashed_messages:
         session['_flashes'] = flashed_messages
+
 
 def logout_and_redirect() -> Response:
     """
@@ -73,11 +79,14 @@ def logout_and_redirect() -> Response:
     clear_session_keeping_flashes()
     return redirect(url_for('index'))
 
-def build_competitions_view(competitions: List[Competition]) -> List[Competition]:
+
+def build_competitions_view(
+        competitions: List[Competition]) -> List[Competition]:
     """
     Build an enhanced view of competitions with booking availability.
 
-    Adds a 'can_book' boolean to each competition indicating if it's currently bookable.
+    Adds a 'can_book' boolean to each competition indicating
+    if it's currently bookable.
 
     Args:
         competitions: List of competition dictionaries.
@@ -96,12 +105,14 @@ def build_competitions_view(competitions: List[Competition]) -> List[Competition
 
     return competitions_view
 
+
 def load_clubs() -> Optional[List[Club]]:
     """
     Load clubs data from the clubs.json file.
 
     Returns:
-        List of club dictionaries if the file is found and valid, otherwise None.
+        List of club dictionaries if the file is
+        found and valid, otherwise None.
 
     Raises:
         None. All exceptions are caught and result in returning None.
@@ -113,22 +124,26 @@ def load_clubs() -> Optional[List[Club]]:
     except (OSError, json.JSONDecodeError, KeyError):
         return None
 
+
 def load_competitions() -> Optional[List[Competition]]:
     """
     Load competitions data from the competitions.json file.
 
     Returns:
-        List of competition dictionaries if the file is found and valid, otherwise None.
+        List of competition dictionaries if the file is
+        found and valid, otherwise None.
 
     Raises:
         None. All exceptions are caught and result in returning None.
     """
     try:
         with open('competitions.json') as comps:
-            list_of_competitions: List[Competition] = json.load(comps)['competitions']
+            list_of_competitions: List[Competition] = json.load(comps)[
+                'competitions']
             return list_of_competitions
     except (OSError, json.JSONDecodeError, KeyError):
         return None
+
 
 def get_club_by_email(email: str, clubs: List[Club]) -> Optional[Club]:
     """
@@ -149,6 +164,7 @@ def get_club_by_email(email: str, clubs: List[Club]) -> Optional[Club]:
             return club
     return None
 
+
 def lower_case_email(email: str) -> str:
     """
     Convert an email address to lowercase.
@@ -160,6 +176,7 @@ def lower_case_email(email: str) -> str:
         Lowercase version of the email.
     """
     return email.lower()
+
 
 def strip_white_space(email: str) -> str:
     """
@@ -173,7 +190,9 @@ def strip_white_space(email: str) -> str:
     """
     return email.strip()
 
-def get_competition_by_name(name: str, competitions: List[Competition]) -> Optional[Competition]:
+
+def get_competition_by_name(
+        name: str, competitions: List[Competition]) -> Optional[Competition]:
     """
     Find a competition by its name from a list of competitions.
 
@@ -188,6 +207,7 @@ def get_competition_by_name(name: str, competitions: List[Competition]) -> Optio
         if competition['name'] == name:
             return competition
     return None
+
 
 def get_club_by_name(name: str, clubs: List[Club]) -> Optional[Club]:
     """
@@ -204,6 +224,7 @@ def get_club_by_name(name: str, clubs: List[Club]) -> Optional[Club]:
         if club['name'] == name:
             return club
     return None
+
 
 def get_club_points(club: Club) -> Optional[int]:
     """
@@ -222,12 +243,15 @@ def get_club_points(club: Club) -> Optional[int]:
     except (TypeError, ValueError):
         return None
 
+
 def get_competition_places(competition: Competition) -> Optional[int]:
     """
-    Extract and convert the number_of_places value from a competition dictionary.
+    Extract and convert the number_of_places value
+    from a competition dictionary.
 
     Args:
-        competition: Competition dictionary containing a 'number_of_places' key.
+        competition: Competition dictionary containing a
+        'number_of_places' key.
 
     Returns:
         Integer value of the available places if valid, otherwise None.
@@ -239,7 +263,9 @@ def get_competition_places(competition: Competition) -> Optional[int]:
     except (TypeError, ValueError):
         return None
 
-def is_competition_bookable(competition: Competition, now: Optional[datetime] = None) -> bool:
+
+def is_competition_bookable(
+        competition: Competition, now: Optional[datetime] = None) -> bool:
     """
     Check if a competition is available for booking.
 
@@ -249,7 +275,8 @@ def is_competition_bookable(competition: Competition, now: Optional[datetime] = 
 
     Args:
         competition: Competition dictionary to check.
-        now: Reference datetime for comparison. Uses current time if not provided.
+        now: Reference datetime for comparison.
+        Uses current time if not provided.
 
     Returns:
         True if the competition is bookable, False otherwise.
@@ -268,6 +295,7 @@ def is_competition_bookable(competition: Competition, now: Optional[datetime] = 
 
     return competition_date >= now
 
+
 def is_booking_valid(
     club_points: int,
     competition_places: int,
@@ -281,7 +309,8 @@ def is_booking_valid(
         club_points: Available points of the club.
         competition_places: Available places in the competition.
         places_requested: Number of places the club wants to book.
-        places_already_booked: Number of places already booked by this club for this competition.
+        places_already_booked: Number of places already booked by
+        this club for this competition.
 
     Returns:
         List of error message strings. Empty list if the booking is valid.
@@ -299,12 +328,15 @@ def is_booking_valid(
 
     if places_requested > club_points:
         errors.append(
-            "Not enough points available in your club to book the requested number of places.")
+            "Not enough points available in your club "
+            "to book the requested number of places.")
 
-    if places_requested > 12 or (places_already_booked + places_requested) > 12:
+    if (places_requested > 12
+            or (places_already_booked + places_requested) > 12):
         errors.append("You cannot book more than 12 places per competition.")
 
     return errors
+
 
 def update_club_points(club: Club, points_to_deduct: int) -> bool:
     """
@@ -329,7 +361,9 @@ def update_club_points(club: Club, points_to_deduct: int) -> bool:
     except (TypeError, ValueError):
         return False
 
-def update_competition_places(competition: Competition, places_to_deduct: int) -> bool:
+
+def update_competition_places(
+        competition: Competition, places_to_deduct: int) -> bool:
     """
     Deduct places from a competition after a successful booking.
 

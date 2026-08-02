@@ -114,11 +114,11 @@ pip install pytest
 # Run all tests
 pytest
 ```
-## 📊 Testing Results
+### 📊 Testing Results
 
-Here's an example of Locust load testing results:
+Here's an example of pytest testing results:
 
-![Locust Performance Test Results](./tests/test_results_screenshot.png)
+![Pytest Test Results](./tests/test_results_screenshot.png)
 
 
 ### Run Specific Test Suites
@@ -147,8 +147,19 @@ pip install coverage
 
 # Run tests with coverage and generate an HTML report
 pytest --cov=. --cov-report html
+
+#Open the report in your browser
+open htmlcov/index.html  # macOS
+start htmlcov/index.html   # Windows
+xdg-open htmlcov/index.html # Linux
+
 ```
-1. Open `htmlcov/index.html` in your browser.
+
+### 📊 Coverage Test Results
+
+Here's an example of coverage test results:
+
+![Coverage Test Results](./tests/coverage_test_results_screenshot.png)
 
 ---
 
@@ -182,6 +193,38 @@ locust -f tests/performance/locustfile.py
    - **Number of users**
 
 > **💡 Tip:** Stop the test with `Ctrl+C` in the terminal or click **Stop** in the web interface.
+
+### 📊 Locust Performance Test Results
+
+Here's an example of performance test results with Locust:
+
+![Locust Performance Test Results](./tests/performance_test_results_screenshot.png)
+
+---
+
+## 🔍 Code Quality & Linting
+
+This project uses **Flake8** to ensure code compliance with [PEP 8](https://peps.python.org/pep-0008/) style guidelines.
+
+### Generate an HTML Report
+
+With the virtual environment active, to generate and visualize Flake8 results in a browser:
+
+```bash
+# Generate a detailed HTML report
+flake8 --format=html --htmldir=flake8_report
+
+# Open the report in your browser
+open flake8_report/index.html  # macOS
+start flake8_report/index.html   # Windows
+xdg-open flake8_report/index.html # Linux
+```
+
+### 📊 Flake8 Report
+
+Here's an example of Flake8 html report:
+
+![Locust Performance Test Results](./tests/flake8_report_screenshot.png)
 
 ---
 

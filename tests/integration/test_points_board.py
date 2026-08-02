@@ -7,7 +7,8 @@ class TestPointsBoard:
         assert b"Public Points Board" in response.data
         assert b"Back to Login" in response.data
 
-    def test_points_board_is_accessible_after_login(self, client, login_as_valid_user):
+    def test_points_board_is_accessible_after_login(
+            self, client, login_as_valid_user):
         login_as_valid_user()
         response = client.get('/points_board', follow_redirects=True)
 
@@ -26,7 +27,8 @@ class TestPointsBoard:
         assert b"She Lifts" in response.data
         assert b"12" in response.data
 
-    def test_points_board_is_updated_after_booking(self, client, login_as_valid_user):
+    def test_points_board_is_updated_after_booking(
+            self, client, login_as_valid_user):
         # Simulate a booking to change the points of a club
         login_as_valid_user()
         response1 = client.post(
@@ -44,4 +46,5 @@ class TestPointsBoard:
 
         assert response2.status_code == 200
         assert b"Simply Lift" in response2.data
-        assert b"10" in response2.data  # Points should be updated from 13 to 10 after booking 3 places
+        # Points should be updated from 13 to 10 after booking 3 places
+        assert b"10" in response2.data

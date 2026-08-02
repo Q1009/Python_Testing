@@ -7,6 +7,8 @@ charset-normalizer==3.4.9
 click==8.4.2
 ConfigArgParse==1.7.5
 coverage==7.14.1
+flake8==7.3.0
+flake8-html==0.4.3
 Flask==3.1.3
 flask-cors==6.0.5
 Flask-Login==0.6.3
@@ -21,11 +23,14 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 locust==2.45.0
 MarkupSafe==3.0.3
+mccabe==0.7.0
 msgpack==1.2.1
 outcome==1.3.0.post0
 packaging==26.2
 pluggy==1.6.0
 psutil==7.2.2
+pycodestyle==2.14.0
+pyflakes==3.4.0
 Pygments==2.20.0
 PySocks==1.7.1
 pytest==9.0.3

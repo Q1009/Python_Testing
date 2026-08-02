@@ -40,8 +40,12 @@ class TestLoadClubs:
             assert "points" in club
 
     def test_returns_single_club(self):
-        """Case 3 — valid file with a single club: returns a list with one element."""
-        club = [{"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}]
+        """
+        Case 3 — valid file with a single club:
+        Returns a list with one element.
+        """
+        club = [{"name": "Simply Lift",
+                 "email": "john@simplylift.co", "points": "13"}]
         data = json.dumps({"clubs": club})
         with patch("builtins.open", mock_open(read_data=data)):
             result = load_clubs()
@@ -71,17 +75,24 @@ class TestLoadClubs:
         with patch("builtins.open", mock_open(read_data=data)):
             assert load_clubs() is None
 
+
 class TestLoadCompetitions:
 
     def test_returns_all_competitions(self, mock_competitions):
-        """Case 1 — valid file with multiple competitions: returns all elements."""
+        """
+        Case 1 — valid file with multiple competitions:
+        Returns all elements.
+        """
         data = json.dumps({"competitions": mock_competitions})
         with patch("builtins.open", mock_open(read_data=data)):
             result = load_competitions()
         assert len(result) == 2
 
     def test_each_competition_has_required_keys(self, mock_competitions):
-        """Case 2 — each competition contains the name, date, and number_of_places keys."""
+        """
+        Case 2 — each competition contains the name,
+        date, and number_of_places keys.
+        """
         data = json.dumps({"competitions": mock_competitions})
         with patch("builtins.open", mock_open(read_data=data)):
             result = load_competitions()
@@ -91,8 +102,17 @@ class TestLoadCompetitions:
             assert "number_of_places" in competition
 
     def test_returns_single_competition(self):
-        """Case 3 — valid file with a single competition: returns a list with one element."""
-        competition = [{"name": "Spring Festival", "date": "2025-03-27 10:00:00", "number_of_places": "25"}]
+        """
+        Case 3 — valid file with a single competition:
+        Returns a list with one element.
+        """
+        competition = [
+            {
+                "name": "Spring Festival",
+                "date": "2025-03-27 10:00:00",
+                "number_of_places": "25"
+            }
+        ]
         data = json.dumps({"competitions": competition})
         with patch("builtins.open", mock_open(read_data=data)):
             result = load_competitions()
@@ -122,12 +142,14 @@ class TestLoadCompetitions:
         with patch("builtins.open", mock_open(read_data=data)):
             assert load_competitions() is None
 
+
 class TestGetClubByEmail:
 
     def test_get_club_with_valid_email(self, mock_clubs):
         """Case 1 — valid email: returns the corresponding club."""
         valid_email = "john@simplylift.co"
-        expected_club = {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
+        expected_club = {"name": "Simply Lift",
+                         "email": "john@simplylift.co", "points": "13"}
         assert get_club_by_email(valid_email, mock_clubs) == expected_club
 
     def test_get_club_with_invalid_email(self, mock_clubs):
@@ -144,47 +166,82 @@ class TestGetClubByEmail:
         assert result is None
 
     def test_get_club_with_multiple_clubs_same_email(self):
-        """Case 4 — multiple clubs with the same email: returns the first club found."""
+        """
+        Case 4 — multiple clubs with the same email:
+        Returns the first club found.
+        """
         clubs_with_duplicate_email = [
-            {"name": "Club A", "email": "duplicate@simplylift.co", "points": "10"},
-            {"name": "Club B", "email": "duplicate@simplylift.co", "points": "20"}
+            {
+                "name": "Club A",
+                "email": "duplicate@simplylift.co",
+                "points": "10"
+            },
+            {
+                "name": "Club B",
+                "email": "duplicate@simplylift.co",
+                "points": "20"
+            }
         ]
         email = "duplicate@simplylift.co"
         result = get_club_by_email(email, clubs_with_duplicate_email)
         assert result == clubs_with_duplicate_email[0]
-    
+
     def test_get_club_with_email_case_sensitivity(self, mock_clubs):
-        """Case 5 — email with different case: returns the corresponding club."""
+        """
+        Case 5 — email with different case:
+        Returns the corresponding club.
+        """
         email_with_different_case = "John@SimplyLift.co"
-        expected_club = {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
+        expected_club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.co",
+            "points": "13"
+        }
         result = get_club_by_email(email_with_different_case, mock_clubs)
         assert result == expected_club
 
     def test_get_club_with_email_with_white_space(self, mock_clubs):
-        """Case 6 — email with spaces: returns the corresponding club."""
+        """
+        Case 6 — email with spaces:
+        Returns the corresponding club.
+        """
         email_with_white_space = "  john@simplylift.co  "
-        expected_club = {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
+        expected_club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.co",
+            "points": "13"
+        }
         result = get_club_by_email(email_with_white_space, mock_clubs)
         assert result == expected_club
+
 
 class TestLowerCaseEmail:
 
     def test_lower_case_email(self):
-        """Case 1 — email with uppercase: returns the email in lower_case."""
+        """
+        Case 1 — email with uppercase:
+        Returns the email in lower_case.
+        """
         email = "John@SimplyLift.co"
         expected_email = "john@simplylift.co"
         result = lower_case_email(email)
         assert result == expected_email
-    
+
     def test_lower_case_email_already_lower_case(self):
-        """Case 2 — email already in lower_case: returns the same email."""
+        """
+        Case 2 — email already in lower_case:
+        Returns the same email.
+        """
         email = "john@simplylift.co"
         expected_email = "john@simplylift.co"
         result = lower_case_email(email)
         assert result == expected_email
 
     def test_lower_case_email_with_white_space(self):
-        """Case 3 — email with spaces: returns the email in lower_case with spaces."""
+        """
+        Case 3 — email with spaces:
+        Returns the email in lower_case with spaces.
+        """
         email = "  John@SimplyLift.co  "
         expected_email = "  john@simplylift.co  "
         result = lower_case_email(email)
@@ -197,10 +254,14 @@ class TestLowerCaseEmail:
         result = lower_case_email(email)
         assert result == expected_email
 
+
 class TestStripWhiteSpace:
 
     def test_strip_white_space(self):
-        """Case 1 — email with spaces before and after: returns the email without spaces."""
+        """
+        Case 1 — email with spaces before and after:
+        Returns the email without spaces.
+        """
         email = "  john@simplylift.co  "
         expected_email = "john@simplylift.co"
         result = strip_white_space(email)
@@ -228,25 +289,39 @@ class TestStripWhiteSpace:
         assert result == expected_email
 
     def test_strip_white_space_with_tabs_and_newlines(self):
-        """Case 5 — email with tabs and newlines: returns the email without tabs and newlines."""
+        """
+        Case 5 — email with tabs and newlines:
+        Returns the email without tabs and newlines.
+        """
         email = "\n\t  john@simplylift.co  \n\t"
         expected_email = "john@simplylift.co"
         result = strip_white_space(email)
         assert result == expected_email
 
     def test_strip_white_space_with_internal_spaces(self):
-        """Case 6 — email with internal spaces: only removes spaces before and after."""
+        """
+        Case 6 — email with internal spaces:
+        Only removes spaces before and after.
+        """
         email = "  john @ simplylift . co  "
         expected_email = "john @ simplylift . co"
         result = strip_white_space(email)
         assert result == expected_email
 
+
 class TestGetClubByName:
 
     def test_get_club_with_valid_name(self, mock_clubs):
-        """Case 1 — valid club name: returns the corresponding club."""
+        """
+        Case 1 — valid club name
+        Returns the corresponding club.
+        """
         name = "Simply Lift"
-        expected_club = {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
+        expected_club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.co",
+            "points": "13"
+        }
         result = get_club_by_name(name, mock_clubs)
         assert result == expected_club
 
@@ -257,12 +332,20 @@ class TestGetClubByName:
         result = get_club_by_name(name, mock_clubs)
         assert result == expected_result
 
+
 class TestGetCompetitionByName:
 
     def test_get_competition_with_valid_name(self, mock_competitions):
-        """Case 1 — valid competition name: returns the corresponding competition."""
+        """
+        Case 1 — valid competition name:
+        Returns the corresponding competition.
+        """
         name = "Spring Festival"
-        expected_competition = {"name": "Spring Festival", "date": "2025-03-27 10:00:00", "number_of_places": "25"}
+        expected_competition = {
+            "name": "Spring Festival",
+            "date": "2025-03-27 10:00:00",
+            "number_of_places": "25"
+        }
         result = get_competition_by_name(name, mock_competitions)
         assert result == expected_competition
 
@@ -273,11 +356,13 @@ class TestGetCompetitionByName:
         result = get_competition_by_name(name, mock_competitions)
         assert result == expected_result
 
+
 class TestGetClubPoints:
 
     def test_get_club_points_with_valid_club(self, mock_clubs):
         """Case 1 — valid club as parameter: returns the number of points."""
-        valid_club = {"name": "Simply Lift", "email": "john@simplylift.co", "points": "13"}
+        valid_club = {"name": "Simply Lift",
+                      "email": "john@simplylift.co", "points": "13"}
         expected_points = 13
         result = get_club_points(valid_club)
         assert result == expected_points
@@ -289,18 +374,29 @@ class TestGetClubPoints:
         result = get_club_points(invalid_club)
         assert result == expected_points
 
+
 class TestGetCompetitionPlaces:
 
-    def test_get_competition_places_with_valid_competition(self, mock_competitions):
-        """Case 1 — valid competition as parameter: returns the number of available places."""
-        valid_competition = {"name": "Spring Festival", "date": "2025-03-27 10:00:00", "number_of_places": "25"}
+    def test_get_competition_places_with_valid_competition(
+            self, mock_competitions):
+        """
+        Case 1 — valid competition as parameter:
+        Returns the number of available places.
+        """
+        valid_competition = {
+            "name": "Spring Festival",
+            "date": "2025-03-27 10:00:00",
+            "number_of_places": "25"
+        }
         expected_places = 25
         result = get_competition_places(valid_competition)
         assert result == expected_places
 
-    def test_get_competition_places_with_invalid_competition(self, mock_competitions):
+    def test_get_competition_places_with_invalid_competition(
+            self, mock_competitions):
         """Case 2 — invalid competition as parameter: returns None."""
-        invalid_competition = {"name": "Invalid Competition", "date": "2025-01-01 00:00:00"}
+        invalid_competition = {
+            "name": "Invalid Competition", "date": "2025-01-01 00:00:00"}
         expected_places = None
         result = get_competition_places(invalid_competition)
         assert result == expected_places
@@ -341,81 +437,119 @@ class TestIsCompetitionBookable:
 
         assert is_competition_bookable(competition, now=now) is False
 
+
 class TestIsBookingValid:
 
     def test_validate_booking_with_valid_points_and_places(self):
-        """Case 1 — club has enough points and places available: returns an empty list."""
+        """
+        Case 1 — club has enough points and places available:
+        Returns an empty list.
+        """
         club_points = 10
         competition_places = 5
         places_required = 3
         expected_errors = []
-        result = is_booking_valid(club_points, competition_places, places_required)
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
     def test_validate_booking_with_insufficient_club_points(self):
-        """Case 2 — club has insufficient points: returns a list with an error message."""
+        """
+        Case 2 — club has insufficient points:
+        Returns a list with an error message.
+        """
         club_points = 2
         competition_places = 5
         places_required = 3
-        expected_errors = ["Not enough points available in your club to book the requested number of places."]
-        result = is_booking_valid(club_points, competition_places, places_required)
+        expected_errors = [
+            "Not enough points available in your club to "
+            "book the requested number of places."]
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
     def test_validate_booking_with_insufficient_competition_places(self):
-        """Case 3 — insufficient available places: returns a list with an error message."""
+        """
+        Case 3 — insufficient available places:
+        Returns a list with an error message.
+        """
         club_points = 10
         competition_places = 2
         places_required = 3
         expected_errors = ["Not enough places available in this competition."]
-        result = is_booking_valid(club_points, competition_places, places_required)
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
-    def test_validate_booking_with_insufficient_club_points_and_competition_places(self):
-        """Case 4 — club has insufficient points and insufficient available places: returns a list with both error messages."""
+    def test_validate_booking_with_invalid_club_and_competition_points(self):
+        """
+        Case 4 — club has insufficient points and competition has insufficient
+        available places:
+        Returns a list with both error messages.
+        """
         club_points = 2
         competition_places = 2
         places_required = 3
         expected_errors = [
             "Not enough places available in this competition.",
-            "Not enough points available in your club to book the requested number of places.",
+            "Not enough points available in your club "
+            "to book the requested number of places.",
         ]
-        result = is_booking_valid(club_points, competition_places, places_required)
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
     def test_validate_booking_with_zero_places_requested(self):
-        """Case 5 — request to book zero places: returns a list with an error message."""
+        """
+        Case 5 — request to book zero places:
+        Returns a list with an error message.
+        """
         club_points = 10
         competition_places = 5
         places_required = 0
         expected_errors = ["You need to book at least one place."]
-        result = is_booking_valid(club_points, competition_places, places_required)
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
     def test_validate_booking_with_negative_places_requested(self):
-        """Case 6 — request to book a negative number of places: returns a list with an error message."""
+        """
+        Case 6 — request to book a negative number of places
+        Returns a list with an error message.
+        """
         club_points = 10
         competition_places = 5
         places_required = -1
         expected_errors = ["You cannot book a negative number of places."]
-        result = is_booking_valid(club_points, competition_places, places_required)
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
     def test_validate_booking_with_places_requested_exceeding_max_value(self):
-        """Case 7 — request to book more than the maximum number of places: returns a list with an error message."""
+        """
+        Case 7 — request to book more than the maximum number of places
+        Returns a list with an error message.
+        """
         club_points = 15
         competition_places = 25
         places_required = 13
-        expected_errors = ["You cannot book more than 12 places per competition."]
-        result = is_booking_valid(club_points, competition_places, places_required)
+        expected_errors = [
+            "You cannot book more than 12 places per competition."]
+        result = is_booking_valid(
+            club_points, competition_places, places_required)
         assert result == expected_errors
 
     def test_validate_booking_with_cumulative_places_exceeding_twelve(self):
-        """Case 8 — club/competition cumulative > 12: returns an error even if the unit request is <= 12."""
+        """
+        Case 8 — club/competition cumulative > 12
+        Returns an error even if the unit request is <= 12.
+        """
         club_points = 20
         competition_places = 20
         places_required = 3
         places_already_booked = 10
-        expected_errors = ["You cannot book more than 12 places per competition."]
+        expected_errors = [
+            "You cannot book more than 12 places per competition."]
         result = is_booking_valid(
             club_points,
             competition_places,
@@ -424,11 +558,19 @@ class TestIsBookingValid:
         )
         assert result == expected_errors
 
+
 class TestUpdateClubPoints:
 
     def test_update_club_points_with_valid_deduction(self):
-        """Case 1 — valid points deduction: updates the club's points."""
-        club = {"name": "Simply Lift", "email": "john@simplylift.com", "points": "15"}
+        """
+        Case 1 — valid points deduction
+        Updates the club's points.
+        """
+        club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.com",
+            "points": "15"
+        }
         points_to_deduct = 5
         expected_points_after_deduction = "10"
         result = update_club_points(club, points_to_deduct)
@@ -436,8 +578,15 @@ class TestUpdateClubPoints:
         assert club["points"] == expected_points_after_deduction
 
     def test_update_club_points_with_deduction_exceeding_current_points(self):
-        """Case 2 — deduction exceeds current points: does not update points and returns False."""
-        club = {"name": "Simply Lift", "email": "john@simplylift.com", "points": "5"}
+        """
+        Case 2 — deduction exceeds current points
+        Does not update points and returns False.
+        """
+        club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.com",
+            "points": "5"
+        }
         points_to_deduct = 10
         expected_points_after_deduction = "5"
         result = update_club_points(club, points_to_deduct)
@@ -445,23 +594,40 @@ class TestUpdateClubPoints:
         assert club["points"] == expected_points_after_deduction
 
     def test_update_club_points_with_invalid_club(self):
-        """Case 3 — invalid club (not a dictionary): does not update points and returns False."""
+        """
+        Case 3 — invalid club (not a dictionary)
+        Does not update points and returns False.
+        """
         invalid_club = "Not a club dictionary"
         points_to_deduct = 5
         result = update_club_points(invalid_club, points_to_deduct)
         assert result is False
 
     def test_update_club_points_with_non_integer_points(self):
-        """Case 4 — club points not integers: does not update points and returns False."""
-        club = {"name": "Simply Lift", "email": "john@simplylift.com", "points": "not a number"}
+        """
+        Case 4 — club points not integers
+        Does not update points and returns False.
+        """
+        club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.com",
+            "points": "not a number"
+        }
         points_to_deduct = 5
         result = update_club_points(club, points_to_deduct)
         assert result is False
         assert club["points"] == "not a number"
 
     def test_update_club_points_with_negative_deduction(self):
-        """Case 5 — negative points deduction: does not update points and returns False."""
-        club = {"name": "Simply Lift", "email": "john@simplylift.com", "points": "15"}
+        """
+        Case 5 — negative points deduction
+        Does not update points and returns False.
+        """
+        club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.com",
+            "points": "15"
+        }
         points_to_deduct = -5
         expected_points_after_deduction = "15"
         result = update_club_points(club, points_to_deduct)
@@ -469,81 +635,136 @@ class TestUpdateClubPoints:
         assert club["points"] == expected_points_after_deduction
 
     def test_update_club_points_with_zero_deduction(self):
-        """Case 6 — zero points deduction: does not update points and returns True."""
-        club = {"name": "Simply Lift", "email": "john@simplylift.com", "points": "15"}
+        """
+        Case 6 — zero points deduction
+        Does not update points and returns True.
+        """
+        club = {
+            "name": "Simply Lift",
+            "email": "john@simplylift.com",
+            "points": "15"
+        }
         points_to_deduct = 0
         expected_points_after_deduction = "15"
         result = update_club_points(club, points_to_deduct)
         assert result is True
         assert club["points"] == expected_points_after_deduction
 
+
 class TestUpdateCompetitionPlaces:
 
     def test_update_competition_places_with_valid_deduction(self):
-        """Case 1 — valid places deduction: updates the competition's number of places."""
-        competition = {"name": "Fall Classic", "date": "2026-10-22 13:30:00", "number_of_places": "13"}
+        """
+        Case 1 — valid places deduction
+        Updates the competition's number of places.
+        """
+        competition = {
+            "name": "Fall Classic",
+            "date": "2026-10-22 13:30:00",
+            "number_of_places": "13"
+        }
         places_to_deduct = 5
         expected_places_after_deduction = "8"
         result = update_competition_places(competition, places_to_deduct)
         assert result is True
-        assert competition["number_of_places"] == expected_places_after_deduction
+        number_of_places = competition["number_of_places"]
+        assert number_of_places == expected_places_after_deduction
 
-    def test_update_competition_places_with_deduction_exceeding_current_places(self):
-        """Case 2 — deduction exceeds current places: does not update places and returns False."""
-        competition = {"name": "Spring Festival", "date": "2025-03-27 10:00:00", "number_of_places": "5"}
+    def test_update_competition_places_with_deduction_exceeding_places(self):
+        """
+        Case 2 — deduction exceeds current places
+        Does not update places and returns False.
+        """
+        competition = {
+            "name": "Spring Festival",
+            "date": "2025-03-27 10:00:00",
+            "number_of_places": "5"
+        }
         places_to_deduct = 10
         expected_places_after_deduction = "5"
         result = update_competition_places(competition, places_to_deduct)
         assert result is False
-        assert competition["number_of_places"] == expected_places_after_deduction
+        number_of_places = competition["number_of_places"]
+        assert number_of_places == expected_places_after_deduction
 
     def test_update_competition_places_with_invalid_competition(self):
-        """Case 3 — invalid competition (not a dictionary): does not update places and returns False."""
+        """
+        Case 3 — invalid competition (not a dictionary)
+        Does not update places and returns False.
+        """
         invalid_competition = "Not a competition dictionary"
         places_to_deduct = 5
-        result = update_competition_places(invalid_competition, places_to_deduct)
+        result = update_competition_places(
+            invalid_competition, places_to_deduct)
         assert result is False
 
     def test_update_competition_places_with_non_integer_places(self):
-        """Case 4 — competition places not integers: does not update places and returns False."""
-        competition = {"name": "Fall Classic", "date": "2026-10-22 13:30:00", "number_of_places": "not a number"}
+        """
+        Case 4 — competition places not integers
+        Does not update places and returns False.
+        """
+        competition = {
+            "name": "Fall Classic",
+            "date": "2026-10-22 13:30:00",
+            "number_of_places": "not a number"
+        }
         places_to_deduct = 5
         result = update_competition_places(competition, places_to_deduct)
         assert result is False
         assert competition["number_of_places"] == "not a number"
 
     def test_update_competition_places_with_negative_deduction(self):
-        """Case 5 — negative places deduction: does not update places and returns False."""
-        competition = {"name": "Fall Classic", "date": "2026-10-22 13:30:00", "number_of_places": "13"}
+        """
+        Case 5 — negative places deduction
+        Does not update places and returns False.
+        """
+        competition = {"name": "Fall Classic",
+                       "date": "2026-10-22 13:30:00", "number_of_places": "13"}
         places_to_deduct = -5
         expected_places_after_deduction = "13"
         result = update_competition_places(competition, places_to_deduct)
         assert result is False
-        assert competition["number_of_places"] == expected_places_after_deduction
+        number_of_places = competition["number_of_places"]
+        assert number_of_places == expected_places_after_deduction
 
     def test_update_competition_places_with_zero_deduction(self):
-        """Case 6 — zero places deduction: does not update places and returns True."""
-        competition = {"name": "Fall Classic", "date": "2026-10-22 13:30:00", "number_of_places": "13"}
+        """
+        Case 6 — zero places deduction
+        Does not update places and returns True.
+        """
+        competition = {"name": "Fall Classic",
+                       "date": "2026-10-22 13:30:00", "number_of_places": "13"}
         places_to_deduct = 0
         expected_places_after_deduction = "13"
         result = update_competition_places(competition, places_to_deduct)
         assert result is True
-        assert competition["number_of_places"] == expected_places_after_deduction
+        number_of_places = competition["number_of_places"]
+        assert number_of_places == expected_places_after_deduction
+
 
 class TestGetBookingKey:
 
-    def test_get_booking_key_with_valid_club_and_competition(self, mock_clubs, mock_competitions):
-        """Case 1 — valid club and competition: returns the booking keys."""
+    def test_get_booking_key_with_valid_club_and_competition(
+            self, mock_clubs, mock_competitions):
+        """
+        Case 1 — valid club and competition
+        Returns the booking keys.
+        """
         valid_club = mock_clubs[0]
         valid_competition = mock_competitions[0]
         expected_keys = f"{valid_club['name']}::{valid_competition['name']}"
         result = get_booking_key(valid_club['name'], valid_competition['name'])
         assert result == expected_keys
 
+
 class TestGetLoggedClub:
 
-    def test_get_logged_club_with_valid_session(self, request_session, mock_clubs):
-        """Case 1 — valid session with a club: returns the corresponding club name."""
+    def test_get_logged_club_with_valid_session(
+            self, request_session, mock_clubs):
+        """
+        Case 1 — valid session with a club
+        Returns:  the corresponding club name.
+        """
         with request_session(mock_clubs[0]['email']):
             result = get_logged_club()
             assert result == mock_clubs[0]

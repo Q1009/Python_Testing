@@ -1,0 +1,10 @@
+[flake8]
+exclude =
+    .pytest_cache,
+    __pycache__,
+    bin,
+    htmlcov,
+    include,
+    lib
+format = html
+htmldir = flake8-report

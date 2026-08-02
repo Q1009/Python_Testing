@@ -1,4 +1,4 @@
-from tests.conftest import client
+
 
 class TestLogout:
 

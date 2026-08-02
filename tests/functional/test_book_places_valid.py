@@ -9,7 +9,8 @@ class TestBookPlacesValid(LiveServerTestCase):
         return create_app()
 
     def setUp(self):
-        self.driver = webdriver.Firefox()  # Ensure GeckoDriver is installed and in PATH.
+        # Ensure GeckoDriver is installed and in PATH.
+        self.driver = webdriver.Firefox()
         self.driver.get(self.get_server_url())
 
     def tearDown(self):
@@ -37,9 +38,11 @@ class TestBookPlacesValid(LiveServerTestCase):
 
         # 3) The user buys 5 places.
         places_input.send_keys("5")
-        self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+        self.driver.find_element(
+            By.CSS_SELECTOR, "button[type='submit']").click()
 
-        self.assertIn("Booking complete: 5 places purchased.", self.driver.page_source)
+        self.assertIn("Booking complete: 5 places purchased.",
+                      self.driver.page_source)
         self.assertIn("Points available: 8", self.driver.page_source)
         self.assertIn("Number of Places: 8", self.driver.page_source)
 
