@@ -1,3 +1,6 @@
+import os
+import secrets
+
 from flask import (
     Flask,
     current_app,
@@ -29,21 +32,32 @@ from utils import (
 
 def create_app(config=None, clubs=None, competitions=None):
     """
-    Create and configure the Flask application.
+    Create and configure a Flask application instance for the GÜDLFT server.
 
-    Args:
-        config (dict, optional): Configuration dictionary
-        to update the app config.
-        clubs (list, optional): List of clubs to use.
-        If None, loads from clubs.json.
-        competitions (list, optional): List of competitions to use.
-        If None, loads from competitions.json.
+    This factory function initializes a Flask app, applies the provided or
+    default configuration, and loads clubs and competitions data either
+    from the provided arguments or from their respective JSON files.
 
-    Returns:
-        Flask: Configured Flask application instance.
+    :param config: Optional dictionary of configuration values to update
+                    the app's config. If ``None``,
+                    only default values are applied.
+    :type config: dict | None
+    :param clubs: Optional list of club dictionaries to use for the
+                application. If ``None``, clubs are loaded from
+                ``clubs.json`` via :func:`utils.load_clubs`.
+    :type clubs: list[dict] | None
+    :param competitions: Optional list of competition dictionaries to use
+                        for the application. If ``None``, competitions are
+                        loaded from ``competitions.json`` via
+                        :func:`utils.load_competitions`.
+    :type competitions: list[dict] | None
+
+    :return: A fully configured Flask application instance with routes,
+            templates, and session management set up.
+    :rtype: flask.Flask
     """
     app = Flask(__name__)
-    app.secret_key = 'something_special'
+    app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
     if config:
         app.config.update(config)
 
@@ -59,14 +73,25 @@ def create_app(config=None, clubs=None, competitions=None):
 
     def render_welcome(club, competitions):
         """
-        Render the welcome/dashboard template for a logged-in club.
+        Render the welcome template for a logged-in club.
 
-        Args:
-            club (dict): Club dictionary containing name, email, and points.
-            competitions (list): List of competition dictionaries.
+        This helper function prepares the template context with
+        the club's details and a formatted view of available
+        competitions, then renders the welcome page.
 
-        Returns:
-            Response: Rendered template response for the welcome page.
+        :param club: Dictionary containing the club's information
+                    (name, email, points, etc.).
+                    Used to personalize the dashboard.
+        :type club: dict
+        :param competitions: List of competition dictionaries
+                            to display on the dashboard.
+                            Will be processed by
+                            :func:`utils.build_competitions_view`
+                            before rendering.
+        :type competitions: list[dict]
+
+        :return: Rendered HTML response for the welcome page.
+        :rtype: flask.Response
         """
         return render_template(
             'welcome.html',
@@ -91,14 +116,17 @@ def create_app(config=None, clubs=None, competitions=None):
     @app.route('/dashboard')
     def dashboard():
         """
-        Render the dashboard for a logged-in club.
+        Render the dashboard for an authenticated club.
 
-        Requires an active login session. If not logged in,
-        redirects to the login page.
+        This route handler checks if the user is logged in.
+        If not, it redirects to the login page.
+        Otherwise, it displays the club's dashboard with
+        available competitions.
 
-        Returns:
-            Response: Rendered welcome template if logged in,
-                     or redirect response to login page if not.
+        :return: Rendered welcome template with club and
+                competitions data if logged in, or a redirect
+                response to the login page if not authenticated.
+        :rtype: flask.Response
         """
         club = require_login()
         if club is None:
@@ -111,10 +139,14 @@ def create_app(config=None, clubs=None, competitions=None):
         """
         Render the public points board showing all clubs and their points.
 
-        Returns:
-            Response: Rendered template for the points board
-            if clubs are loaded, or redirect to index with error
-            flash message if clubs data fails to load.
+        This route handler displays a leaderboard of all registered clubs
+        with their current points. If the clubs data fails to load,
+        it flashes an error message and redirects to the login page.
+
+        :return: Rendered template for the points board if clubs data
+                is available, or a redirect response to the login page
+                with an error flash message if clubs data is missing.
+        :rtype: flask.Response
         """
         available_clubs = current_app.config['CLUBS']
 
@@ -127,15 +159,19 @@ def create_app(config=None, clubs=None, competitions=None):
     @app.route('/show_summary', methods=['POST'])
     def show_summary():
         """
-        Handle login form submission.
+        Handle login form submission and authenticate a club.
 
-        Validates the submitted email against registered clubs.
-        On success, creates a session and redirects to the dashboard.
-        On failure, flashes an error and redirects to login.
+        This route processes POST requests from the login form.
+        It validates the submitted email against registered clubs.
+        On success, it creates a session and displays the club's
+        dashboard.
+        On failure, it flashes an error message.
 
-        Returns:
-            Response: Redirect to dashboard if login succeeds,
-            or redirect to login with error message if login fails.
+        :return: Rendered welcome template with club and competitions
+                data if login succeeds, or a redirect response to the
+                login page with an error flash message if login fails
+                or if clubs/competitions data is missing.
+        :rtype: flask.Response
         """
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
@@ -158,14 +194,22 @@ def create_app(config=None, clubs=None, competitions=None):
         """
         Render the booking page for a specific competition and club.
 
-        Args:
-            competition (str): Name of the competition to book.
-            club (str): Name of the club making the booking.
+        This route displays the booking form for a given competition and club.
+        It performs multiple validations: authentication, data loading,
+        URL parameters, and competition availability.
+        If any validation fails, it redirects to the welcome page
+        with an appropriate error message.
 
-        Returns:
-            Response: Rendered booking template if all validations pass,
-            or redirect to welcome/dashboard with error message if
-            validation fails.
+        :param competition: Name of the competition to book (from URL path).
+        :type competition: str
+        :param club: Name of the club making the booking (from URL path).
+        :type club: str
+
+        :return: Rendered booking template if all validations pass,
+                or a redirect response to the welcome page with an error
+                flash message if validation fails (missing data, invalid URL,
+                competition closed, etc.).
+        :rtype: flask.Response
         """
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']
@@ -202,12 +246,19 @@ def create_app(config=None, clubs=None, competitions=None):
         """
         Process a booking request to purchase places in a competition.
 
-        Validates the request, updates club points and competition
-        places on success, and flashes appropriate messages for any errors.
+        This route handles POST requests to finalize a booking.
+        It validates the request (authentication, data integrity,
+        and business rules), updates the club's points and the
+        competition's available places on success, and manages
+        the booking state.
+        On failure, it flashes appropriate error messages.
 
-        Returns:
-            Response: Redirect to welcome/dashboard with success
-            or error messages.
+        :return: Redirect response to the welcome page with
+                a success flash message if the booking is valid,
+                or with error messages if validation fails
+                (missing data, invalid booking, competition closed,
+                insufficient points, etc.).
+        :rtype: flask.Response
         """
         available_clubs = current_app.config['CLUBS']
         available_competitions = current_app.config['COMPETITIONS']

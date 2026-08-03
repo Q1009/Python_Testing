@@ -9,6 +9,46 @@
             "name": "Fall Classic",
             "date": "2026-10-22 13:30:00",
             "number_of_places": "13"
+        },
+        {
+            "name": "Summer Showdown",
+            "date": "2026-08-15 09:00:00",
+            "number_of_places": "20"
+        },
+        {
+            "name": "Autumn Challenge",
+            "date": "2026-09-12 14:00:00",
+            "number_of_places": "18"
+        },
+        {
+            "name": "Winter Open",
+            "date": "2026-11-05 11:00:00",
+            "number_of_places": "22"
+        },
+        {
+            "name": "New Year's Cup",
+            "date": "2027-01-10 10:00:00",
+            "number_of_places": "15"
+        },
+        {
+            "name": "Valentine's Clash",
+            "date": "2027-02-14 15:00:00",
+            "number_of_places": "12"
+        },
+        {
+            "name": "Spring Cup",
+            "date": "2027-03-20 12:00:00",
+            "number_of_places": "20"
+        },
+        {
+            "name": "Summer Slam",
+            "date": "2027-06-18 13:00:00",
+            "number_of_places": "25"
+        },
+        {
+            "name": "Grand Finale",
+            "date": "2027-08-22 10:00:00",
+            "number_of_places": "30"
         }
     ]
 }

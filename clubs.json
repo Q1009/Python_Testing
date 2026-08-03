@@ -12,5 +12,65 @@
     {   "name":"She Lifts",
         "email": "kate@shelifts.co.uk",
         "points":"12"
+    },
+    {
+        "name": "Power House Gym",
+        "email": "contact@powerhousegym.com",
+        "points": "8"
+    },
+    {
+        "name": "Fit Nation",
+        "email": "info@fitnation.org",
+        "points": "15"
+    },
+    {
+        "name": "Stronghold Fitness",
+        "email": "hello@strongholdfit.com",
+        "points": "6"
+    },
+    {
+        "name": "Elite Training",
+        "email": "train@elitetraining.net",
+        "points": "10"
+    },
+    {
+        "name": "Viking Strength",
+        "email": "admin@vikingstrength.io",
+        "points": "5"
+    },
+    {
+        "name": "Zenith Club",
+        "email": "members@zenithclub.co",
+        "points": "11"
+    },
+    {
+        "name": "Titan Fitness",
+        "email": "support@titanfitness.com",
+        "points": "7"
+    },
+    {
+        "name": "Apex Athletics",
+        "email": "contact@apexathletics.com",
+        "points": "14"
+    },
+    {
+        "name": "Olympus Gym",
+        "email": "info@olympusgym.net",
+        "points": "9"
+    },
+    {
+        "name": "Iron Will",
+        "email": "admin@ironwill.fit",
+        "points": "13"
+    },
+    {
+        "name": "Champion's Club",
+        "email": "members@championsclub.org",
+        "points": "16"
+    },
+    {
+        "name": "Phoenix Rising",
+        "email": "hello@phoenixrising.gym",
+        "points": "4"
     }
 ]}

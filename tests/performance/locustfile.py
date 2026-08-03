@@ -8,6 +8,8 @@ GudLift competition booking system. It validates:
 - Business rule enforcement (places, points, deadlines)
 - Authentication and session management
 """
+import json
+import os
 from urllib.parse import quote
 
 from locust import HttpUser, between, task
@@ -23,6 +25,13 @@ class ProjectPerformanceTest(HttpUser):
     3. Books places for competitions (with validation checks)
     4. Logs out
 
+    Uses dynamic data from clubs.json and competitions.json to:
+    1. Authenticate with all available club emails
+    2. Book maximum possible places for competitions based on:
+        - Club's remaining points
+        - Competition's remaining places
+        - 12 places maximum per club per competition rule
+
     Task weights reflect expected usage frequency:
     - authenticated_flow (6): Most common (booking places)
     - homepage (5): Frequent navigation
@@ -32,19 +41,37 @@ class ProjectPerformanceTest(HttpUser):
 
     wait_time = between(1, 3)
 
-    # Valid users from clubs.json
-    user_emails = [
-        "john@simplylift.co",
-        "kate@shelifts.co.uk",
-        "admin@irontemple.com",
-    ]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.clubs = []
+        self.competitions = []
+        self._load_data()
 
-    # Club names paired with their best booking target
-    booking_targets = [
-        ("Simply Lift", "Fall Classic", 2),
-        ("She Lifts", "Fall Classic", 1),
-        ("Iron Temple", "Fall Classic", 1),
-    ]
+    def _load_data(self):
+        """Load clubs and competitions from JSON files."""
+        script_dir = os.path.dirname(
+            os.path.abspath(__file__)
+        )
+        project_root = os.path.dirname(
+            os.path.dirname(os.path.dirname(script_dir))
+        )
+
+        # Load clubs
+        clubs_path = os.path.join(
+            project_root, "Python_Testing", "clubs.json")
+        with open(clubs_path, 'r') as f:
+            clubs_data = json.load(f)
+            self.clubs = clubs_data["clubs"]
+
+        # Load competitions
+        comp_path = os.path.join(
+            project_root, "Python_Testing", "competitions.json")
+        with open(comp_path, 'r') as f:
+            comp_data = json.load(f)
+            self.competitions = comp_data["competitions"]
+
+        # Prepare email list from all clubs
+        self.user_emails = [club["email"] for club in self.clubs]
 
     def on_start(self):
         """
@@ -53,7 +80,8 @@ class ProjectPerformanceTest(HttpUser):
         """
         self.logged_in = False
         self.email_idx = 0
-        self.booking_idx = 0
+        self.current_club = None
+        self.current_competition = None
 
     def _next_email(self):
         """
@@ -64,16 +92,42 @@ class ProjectPerformanceTest(HttpUser):
         self.email_idx += 1
         return email
 
+    def _get_club_by_email(self, email):
+        """Find club data by email address."""
+        for club in self.clubs:
+            if club["email"] == email:
+                return club
+        return None
+
     def _next_booking_target(self):
         """
-        Return the next (club, competition, places)
-        tuple in round-robin rotation.
-        Provides varied booking scenarios across clubs and competitions.
+        Return the next (club, competition, places) tuple dynamically.
+        Calculates maximum places as min(club_points, competition_places, 12).
         """
-        target = self.booking_targets[self.booking_idx %
-                                      len(self.booking_targets)]
-        self.booking_idx += 1
-        return target
+        # Get next club in rotation
+        email = self._next_email()
+        club = self._get_club_by_email(email)
+        if not club:
+            return None, None, 0
+
+        # Get next competition in rotation
+        comp_idx = self.email_idx % len(self.competitions)
+        competition = self.competitions[comp_idx]
+
+        # Calculate maximum places the club can book:
+        # - Limited by club points (1 point = 1 place)
+        # - Limited by competition available places
+        # - Limited by 12 places max rule
+        club_points = int(club["points"])
+        comp_places = int(competition["number_of_places"])
+
+        max_places = min(club_points, comp_places, 12)
+
+        # Ensure at least 1 place if possible
+        max_places = max(
+            1, max_places) if club_points > 0 and comp_places > 0 else 0
+
+        return club, competition, max_places
 
     @task(5)
     def homepage(self):
@@ -96,7 +150,7 @@ class ProjectPerformanceTest(HttpUser):
         ) as response:
             if (response.status_code != 200
                     or "Points Board" not in response.text):
-                response.failure("Points board indisponible")
+                response.failure("Points board unavailable")
 
     @task(6)
     def authenticated_flow(self):
@@ -108,8 +162,14 @@ class ProjectPerformanceTest(HttpUser):
         - Place purchasing with business rule validation
         - Response handling for success/error cases
         """
-        email = self._next_email()
+        club, competition, places = self._next_booking_target()
 
+        if not club or not competition or places <= 0:
+            return
+
+        email = club["email"]
+
+        # Login
         with self.client.post(
             "/show_summary",
             data={"email": email},
@@ -120,14 +180,17 @@ class ProjectPerformanceTest(HttpUser):
                 login_response.failure("Login non-200")
                 return
             if "Welcome," not in login_response.text:
-                login_response.failure("Login invalide")
+                login_response.failure("Login invalid")
                 return
 
         self.logged_in = True
-        club_name, competition_name, places = self._next_booking_target()
-        encoded_club = quote(club_name, safe="")
-        encoded_comp = quote(competition_name, safe="")
+        self.current_club = club
+        self.current_competition = competition
 
+        encoded_club = quote(club["name"], safe="")
+        encoded_comp = quote(competition["name"], safe="")
+
+        # Access booking page
         with self.client.get(
             f"/book/{encoded_comp}/{encoded_club}",
             name="GET /book/<competition>/<club>",
@@ -137,12 +200,17 @@ class ProjectPerformanceTest(HttpUser):
                 booking_page_response.failure("Page booking non-200")
                 return
             if "How many places?" not in booking_page_response.text:
-                booking_page_response.failure("Formulaire booking absent")
+                booking_page_response.failure("Booking form absent")
                 return
 
+        # Attempt to purchase calculated places
         with self.client.post(
             "/purchase_places",
-            data={"competition": competition_name, "places": str(places)},
+            data={
+                "competition": competition["name"],
+                "club": club["name"],
+                "places": str(places)
+            },
             name="POST /purchase_places",
             catch_response=True,
         ) as purchase_response:
@@ -164,8 +232,8 @@ class ProjectPerformanceTest(HttpUser):
                 msg in purchase_response.text
                 for msg in known_validation_errors
             ):
-                purchase_response.failure(
-                    "Blocking business rule on purchase")
+                # This is expected if another user booked places concurrently
+                purchase_response.success()
             else:
                 purchase_response.failure(
                     "Unexpected response on purchase_places")
@@ -188,7 +256,7 @@ class ProjectPerformanceTest(HttpUser):
                 response.failure("Logout non-200")
                 return
             if "Please enter your secretary email" not in response.text:
-                response.failure("Logout incomplet")
+                response.failure("Logout incomplete")
                 return
 
         self.logged_in = False

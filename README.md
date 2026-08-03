@@ -86,7 +86,7 @@ $env:FLASK_APP = "server.py"
 flask run
 ```
 
-The app should start on `http://127.0.0.1:5000/`. Open this address in your browser to access the **GudLift Registration Portal**.
+The app should start on `http://127.0.0.1:5000/`. Open this address in your browser to access the **GUDLFT Registration Portal**.
 
 ---
 
@@ -116,7 +116,7 @@ pytest
 ```
 ### 📊 Testing Results
 
-Here's an example of pytest testing results:
+Here are the pytest testing results of the current state of the project:
 
 ![Pytest Test Results](./tests/test_results_screenshot.png)
 
@@ -157,7 +157,7 @@ xdg-open htmlcov/index.html # Linux
 
 ### 📊 Coverage Test Results
 
-Here's an example of coverage test results:
+Here are the coverage results of the pytest tests in the current state of the project:
 
 ![Coverage Test Results](./tests/coverage_test_results_screenshot.png)
 
@@ -196,7 +196,7 @@ locust -f tests/performance/locustfile.py
 
 ### 📊 Locust Performance Test Results
 
-Here's an example of performance test results with Locust:
+Here are the Locust performance results in the current state of the project with 10 users in total and a spawn rate of 1:
 
 ![Locust Performance Test Results](./tests/performance_test_results_screenshot.png)
 
@@ -222,7 +222,7 @@ xdg-open flake8_report/index.html # Linux
 
 ### 📊 Flake8 Report
 
-Here's an example of Flake8 html report:
+Here are the Flake8 results of the current state of the project:
 
 ![Locust Performance Test Results](./tests/flake8_report_screenshot.png)
 
